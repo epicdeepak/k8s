@@ -1,28 +1,42 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kubernetes from Zero — kubectl + K9s</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Kubernetes Architect Guide — kubectl + K9s</title>
 
 <style>
 :root{
-  --bg:#f6f7fb;
-  --panel:#fff;
-  --ink:#172033;
+  --bg:#f5f7fb;
+  --panel:#ffffff;
+  --panel2:#f8fafc;
+  --text:#172033;
   --muted:#667085;
-  --line:#e5e7eb;
+  --border:#e4e7ec;
+
   --blue:#2563eb;
   --blue-soft:#eff6ff;
+
   --green:#15803d;
-  --green-soft:#f0fdf4;
-  --amber:#b45309;
-  --amber-soft:#fffbeb;
+  --green-soft:#ecfdf3;
+
+  --orange:#c2410c;
+  --orange-soft:#fff7ed;
+
   --red:#b91c1c;
   --red-soft:#fef2f2;
+
   --purple:#7c3aed;
   --purple-soft:#f5f3ff;
-  --code:#111827;
+
+  --cyan:#0891b2;
+  --cyan-soft:#ecfeff;
+
+  --dark:#0f172a;
+  --dark2:#111827;
+
+  --code:#0b1120;
 }
 
 *{
@@ -36,8 +50,16 @@ html{
 body{
   margin:0;
   background:var(--bg);
-  color:var(--ink);
-  font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  line-height:1.55;
 }
 
 button,
@@ -45,46 +67,79 @@ input{
   font:inherit;
 }
 
+a{
+  color:inherit;
+}
+
 .app{
-  max-width:1450px;
-  margin:auto;
+  max-width:1500px;
+  margin:0 auto;
   padding:22px;
 }
 
-/* HERO */
+/* ============================================================
+   HERO
+============================================================ */
 
 .hero{
-  background:linear-gradient(135deg,#111827 0%,#1e3a8a 100%);
-  color:#fff;
-  border-radius:22px;
-  padding:30px;
+  background:
+    radial-gradient(circle at 90% 20%,#2563eb55,transparent 35%),
+    linear-gradient(135deg,#0f172a,#172554 60%,#1e3a8a);
+  color:white;
+  padding:34px;
+  border-radius:24px;
   margin-bottom:18px;
+  box-shadow:0 20px 50px rgba(15,23,42,.15);
 }
 
-.hero h1{
-  margin:0 0 8px;
-  font-size:32px;
-  letter-spacing:-.03em;
-}
-
-.hero p{
-  margin:0;
-  color:#dbeafe;
-  max-width:900px;
-  font-size:15px;
+.hero-top{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-start;
 }
 
 .badge{
   display:inline-block;
-  background:#ffffff18;
-  border:1px solid #ffffff30;
   padding:5px 10px;
   border-radius:999px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);
   font-size:12px;
-  margin-bottom:10px;
+  margin-bottom:12px;
 }
 
-/* LAYOUT */
+.hero h1{
+  margin:0 0 10px;
+  font-size:34px;
+  letter-spacing:-.035em;
+}
+
+.hero p{
+  margin:0;
+  max-width:950px;
+  color:#dbeafe;
+  font-size:15px;
+}
+
+.hero-note{
+  margin-top:18px;
+  display:inline-flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.hero-pill{
+  padding:7px 11px;
+  border-radius:9px;
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.15);
+  font-size:12px;
+}
+
+/* ============================================================
+   LAYOUT
+============================================================ */
 
 .layout{
   display:grid;
@@ -93,69 +148,81 @@ input{
   align-items:start;
 }
 
-aside{
+.sidebar{
   position:sticky;
   top:18px;
   background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:16px;
+  border:1px solid var(--border);
+  border-radius:18px;
   padding:14px;
 }
 
-aside strong{
-  display:block;
-  margin:4px 8px 10px;
-  font-size:12px;
-  text-transform:uppercase;
+.sidebar-title{
   color:var(--muted);
-  letter-spacing:.08em;
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  margin:5px 9px 9px;
 }
 
-nav a{
+.sidebar a{
   display:block;
+  padding:8px 10px;
+  border-radius:9px;
   text-decoration:none;
   color:#344054;
-  padding:8px 9px;
-  border-radius:9px;
+  font-size:13px;
   margin:2px 0;
 }
 
-nav a:hover{
+.sidebar a:hover{
   background:#f2f4f7;
   color:var(--blue);
 }
 
-main{
+.content{
   min-width:0;
 }
 
-/* SECTIONS */
+/* ============================================================
+   SECTION
+============================================================ */
 
 .section{
   background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:16px;
+  border:1px solid var(--border);
+  border-radius:18px;
   padding:22px;
   margin-bottom:18px;
 }
 
+.section-header{
+  margin-bottom:17px;
+}
+
+.section-number{
+  color:var(--blue);
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+
 .section h2{
-  margin:0 0 6px;
-  font-size:21px;
-  letter-spacing:-.02em;
+  margin:3px 0 5px;
+  font-size:22px;
+  letter-spacing:-.025em;
 }
 
-.section h3{
-  margin:18px 0 8px;
-  font-size:15px;
-}
-
-.sub{
+.section-intro{
+  margin:0;
   color:var(--muted);
-  margin:0 0 16px;
 }
 
-/* CARDS */
+/* ============================================================
+   CARDS
+============================================================ */
 
 .grid{
   display:grid;
@@ -170,131 +237,283 @@ main{
 }
 
 .card{
-  border:1px solid var(--line);
-  border-radius:13px;
+  border:1px solid var(--border);
+  border-radius:14px;
   padding:15px;
-  background:#fff;
+  background:white;
 }
 
 .card h3{
-  margin:0 0 5px;
+  margin:0 0 6px;
+  font-size:15px;
 }
 
 .card p{
   margin:0;
   color:var(--muted);
+  font-size:13px;
 }
 
-/* MENTAL MODEL */
+.card .mini{
+  display:block;
+  margin-top:7px;
+  color:var(--muted);
+  font-size:12px;
+}
 
-.model{
+.blue{
+  background:var(--blue-soft);
+  border-color:#bfdbfe;
+}
+
+.green{
+  background:var(--green-soft);
+  border-color:#bbf7d0;
+}
+
+.orange{
+  background:var(--orange-soft);
+  border-color:#fed7aa;
+}
+
+.red{
+  background:var(--red-soft);
+  border-color:#fecaca;
+}
+
+.purple{
+  background:var(--purple-soft);
+  border-color:#ddd6fe;
+}
+
+.cyan{
+  background:var(--cyan-soft);
+  border-color:#a5f3fc;
+}
+
+/* ============================================================
+   ARCHITECTURE DIAGRAM
+============================================================ */
+
+.arch{
+  background:linear-gradient(180deg,#f8fafc,#f1f5f9);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:18px;
+}
+
+.layer{
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:14px;
+  margin-bottom:10px;
+  background:#fff;
+}
+
+.layer:last-child{
+  margin-bottom:0;
+}
+
+.layer-title{
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  font-weight:800;
+  letter-spacing:.07em;
+  margin-bottom:10px;
+}
+
+.nodes{
   display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
   flex-wrap:wrap;
-  background:#fafafa;
-  border:1px dashed #d0d5dd;
-  border-radius:14px;
-  padding:20px;
+  gap:8px;
 }
 
 .node{
-  padding:11px 15px;
-  border-radius:11px;
-  background:#fff;
+  background:white;
   border:1px solid #cbd5e1;
-  text-align:center;
+  border-radius:10px;
+  padding:9px 12px;
   min-width:125px;
 }
 
 .node b{
   display:block;
+  font-size:13px;
 }
 
-.arrow{
-  color:#98a2b3;
-  font-size:20px;
-}
-
-/* FLOW */
-
-.flow{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-}
-
-.step{
-  padding:13px;
-  border-radius:12px;
-  background:#f8fafc;
-  border:1px solid var(--line);
-}
-
-.step .num{
-  font-size:11px;
-  color:var(--blue);
-  font-weight:800;
-}
-
-.step b{
+.node span{
   display:block;
-  margin-top:3px;
+  margin-top:2px;
+  color:var(--muted);
+  font-size:11px;
 }
 
-/* COMMANDS */
+/* ============================================================
+   CONTROL LOOP
+============================================================ */
+
+.loop{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  align-items:stretch;
+}
+
+.loop-item{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:13px;
+  text-align:center;
+}
+
+.loop-item strong{
+  display:block;
+  font-size:13px;
+}
+
+.loop-item small{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.loop-arrow{
+  display:none;
+}
+
+/* ============================================================
+   COMMAND BLOCK
+============================================================ */
 
 .command{
+  position:relative;
   background:var(--code);
   color:#e5e7eb;
-  border-radius:11px;
-  padding:13px 14px;
-  font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;
+  border-radius:12px;
+  padding:14px;
+  padding-top:38px;
+  font:
+    12.5px/1.65
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
   overflow:auto;
   white-space:pre-wrap;
 }
 
-.prompt{
+.command-label{
+  position:absolute;
+  top:9px;
+  left:12px;
+  color:#94a3b8;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.copy-btn{
+  position:absolute;
+  top:7px;
+  right:8px;
+  border:1px solid #334155;
+  background:#1e293b;
+  color:#cbd5e1;
+  border-radius:7px;
+  font-size:10px;
+  padding:4px 7px;
+  cursor:pointer;
+}
+
+.copy-btn:hover{
+  background:#334155;
+}
+
+.comment{
+  color:#64748b;
+}
+
+.command .blue-text{
   color:#60a5fa;
 }
 
-/* COMPARE */
+.command .green-text{
+  color:#4ade80;
+}
 
-.compare{
+/* ============================================================
+   TABS
+============================================================ */
+
+.tabs{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+
+.tab{
+  border:1px solid var(--border);
+  background:white;
+  border-radius:9px;
+  padding:8px 11px;
+  color:#344054;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.tab:hover{
+  border-color:#cbd5e1;
+}
+
+.tab.active{
+  background:#111827;
+  border-color:#111827;
+  color:white;
+}
+
+.tab-panel{
+  display:none;
+}
+
+.tab-panel.active{
+  display:block;
+}
+
+/* ============================================================
+   STATUS
+============================================================ */
+
+.status-grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
 }
 
-.col{
-  border:1px solid var(--line);
-  border-radius:13px;
-  overflow:hidden;
-}
-
-.colhead{
-  padding:11px 14px;
-  font-weight:750;
-  background:#f8fafc;
-  border-bottom:1px solid var(--line);
-}
-
-.colbody{
+.status{
   padding:13px;
+  border-radius:12px;
+  border:1px solid var(--border);
 }
 
-.kubectl .colhead{
-  color:#1d4ed8;
-  background:var(--blue-soft);
+.status strong{
+  display:block;
+  font-size:13px;
 }
 
-.k9s .colhead{
-  color:#6d28d9;
-  background:var(--purple-soft);
+.status span{
+  display:block;
+  color:var(--muted);
+  margin-top:4px;
+  font-size:11px;
 }
 
-/* TABLE */
+/* ============================================================
+   TABLE
+============================================================ */
 
 table{
   width:100%;
@@ -305,74 +524,105 @@ th,
 td{
   text-align:left;
   padding:9px;
-  border-bottom:1px solid var(--line);
+  border-bottom:1px solid var(--border);
   vertical-align:top;
+  font-size:12px;
 }
 
 th{
-  font-size:12px;
   color:var(--muted);
+  font-size:11px;
+  text-transform:uppercase;
   background:#fafafa;
 }
 
 code{
-  background:#f2f4f7;
   padding:2px 5px;
   border-radius:5px;
-  font:12px ui-monospace,monospace;
+  background:#f2f4f7;
+  font:
+    12px
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   color:#344054;
 }
 
-/* STATUS */
+/* ============================================================
+   USE CASE
+============================================================ */
 
-.status{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:8px;
+.usecase{
+  border:1px solid var(--border);
+  border-radius:15px;
+  overflow:hidden;
+  margin-bottom:12px;
 }
 
-.status .s{
-  padding:12px;
-  border:1px solid var(--line);
-  border-radius:11px;
+.usecase-head{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:15px;
+  background:#f8fafc;
+  border-bottom:1px solid var(--border);
 }
 
-.s b{
-  display:block;
+.usecase-title{
+  font-weight:800;
 }
 
-.s small{
+.usecase-subtitle{
   color:var(--muted);
+  font-size:12px;
+  margin-top:2px;
 }
 
-.run{
-  background:var(--green-soft);
-  border-color:#bbf7d0 !important;
+.usecase-body{
+  padding:15px;
 }
 
-.wait{
-  background:var(--amber-soft);
-  border-color:#fde68a !important;
+/* ============================================================
+   DETAILS / ACCORDION
+============================================================ */
+
+details{
+  border:1px solid var(--border);
+  border-radius:12px;
+  margin-bottom:9px;
+  background:#fff;
 }
 
-.bad{
-  background:var(--red-soft);
-  border-color:#fecaca !important;
+summary{
+  cursor:pointer;
+  padding:12px 14px;
+  font-weight:700;
+  font-size:13px;
 }
 
-/* CALLOUT */
+.details-content{
+  padding:0 14px 14px;
+  color:#475467;
+  font-size:13px;
+}
+
+/* ============================================================
+   CALLOUT
+============================================================ */
 
 .callout{
+  padding:13px 15px;
+  border-radius:11px;
   border-left:4px solid var(--blue);
   background:var(--blue-soft);
-  padding:12px 14px;
-  border-radius:0 10px 10px 0;
-  margin:12px 0;
+  margin:13px 0;
+  font-size:13px;
 }
 
 .callout.warn{
-  border-left-color:var(--amber);
-  background:var(--amber-soft);
+  border-left-color:var(--orange);
+  background:var(--orange-soft);
 }
 
 .callout.danger{
@@ -380,358 +630,396 @@ code{
   background:var(--red-soft);
 }
 
-/* TABS */
-
-.tabs{
-  display:flex;
-  gap:6px;
-  margin:10px 0 12px;
-  flex-wrap:wrap;
+.callout.green{
+  border-left-color:var(--green);
 }
 
-.tabs button{
-  border:1px solid var(--line);
-  background:#fff;
-  border-radius:8px;
-  padding:7px 10px;
-  cursor:pointer;
-}
-
-.tabs button.active{
-  background:#111827;
-  color:#fff;
-  border-color:#111827;
-}
-
-.panel{
-  display:none;
-}
-
-.panel.active{
-  display:block;
-}
-
-/* SEARCH */
+/* ============================================================
+   SEARCH
+============================================================ */
 
 .search{
   width:100%;
   padding:10px 12px;
-  border:1px solid var(--line);
+  border:1px solid var(--border);
   border-radius:9px;
-  margin-bottom:12px;
+  outline:none;
 }
 
-/* TEXT */
-
-.mini{
-  font-size:12px;
-  color:var(--muted);
+.search:focus{
+  border-color:#93c5fd;
+  box-shadow:0 0 0 3px #dbeafe;
 }
 
-.footer{
-  color:var(--muted);
-  text-align:center;
-  padding:12px 0 30px;
-}
+/* ============================================================
+   RESPONSIVE
+============================================================ */
 
-/* RESPONSIVE */
-
-@media(max-width:1000px){
+@media(max-width:1050px){
 
   .layout{
     grid-template-columns:1fr;
   }
 
-  aside{
+  .sidebar{
     position:relative;
     top:auto;
   }
 
   .grid{
-    grid-template-columns:1fr;
-  }
-
-  .flow{
     grid-template-columns:1fr 1fr;
   }
 
-  .status{
+  .status-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .loop{
     grid-template-columns:1fr 1fr;
   }
 }
 
-@media(max-width:650px){
+@media(max-width:700px){
 
-  .compare,
+  .app{
+    padding:12px;
+  }
+
+  .hero{
+    padding:24px;
+  }
+
+  .hero h1{
+    font-size:27px;
+  }
+
+  .grid,
   .grid2{
     grid-template-columns:1fr;
   }
 
-  .flow{
+  .compare{
+    grid-template-columns:1fr !important;
+  }
+
+  .status-grid{
     grid-template-columns:1fr;
   }
 
-  .status{
+  .loop{
     grid-template-columns:1fr;
   }
 
-  .hero h1{
-    font-size:26px;
+  .section{
+    padding:16px;
   }
 }
 </style>
 </head>
 
+
 <body>
 
 <div class="app">
 
-<!-- HERO -->
+<!-- ============================================================
+     HERO
+============================================================ -->
+
 <header class="hero">
 
-  <span class="badge">
-    Kubernetes • kubectl • K9s
-  </span>
+  <div class="hero-top">
 
-  <h1>
-    Kubernetes from Zero
-  </h1>
+    <div>
 
-  <p>
-    A practical mental model for understanding Kubernetes,
-    debugging Pods and using both kubectl and K9s without getting overwhelmed.
-  </p>
-
-</header>
-
-
-<div class="layout">
-
-<!-- SIDEBAR -->
-<aside>
-
-  <strong>On this page</strong>
-
-  <nav>
-
-    <a href="#mental">
-      1. Mental model
-    </a>
-
-    <a href="#context">
-      2. Context + namespace
-    </a>
-
-    <a href="#resources">
-      3. Kubernetes resources
-    </a>
-
-    <a href="#pods">
-      4. Pods + status
-    </a>
-
-    <a href="#workflow">
-      5. Debugging flow
-    </a>
-
-    <a href="#commands">
-      6. kubectl ↔ K9s
-    </a>
-
-    <a href="#recipes">
-      7. Common use cases
-    </a>
-
-    <a href="#safety">
-      8. Production safety
-    </a>
-
-    <a href="#memory">
-      9. What to memorize
-    </a>
-
-  </nav>
-
-</aside>
-
-
-<main>
-
-
-<!-- ========================= -->
-<!-- 1. MENTAL MODEL -->
-<!-- ========================= -->
-
-<section class="section" id="mental">
-
-  <h2>
-    1. The Kubernetes mental model
-  </h2>
-
-  <p class="sub">
-    Before typing commands, answer four questions:
-    <b>Where?</b>
-    <b>Which area?</b>
-    <b>What?</b>
-    <b>Why?</b>
-  </p>
-
-
-  <div class="flow">
-
-    <div class="step">
-
-      <span class="num">
-        WHERE?
+      <span class="badge">
+        KUBERNETES • KUBECTL • K9S • PRODUCTION
       </span>
 
-      <b>
-        Context
-      </b>
+      <h1>
+        Kubernetes Architect Guide
+      </h1>
 
-      <span class="mini">
-        Which cluster and credentials?
-      </span>
+      <p>
+        Stop memorizing commands. Build a mental model of the cluster,
+        understand how workloads actually run, trace network and storage paths,
+        and know how to investigate real production systems.
+      </p>
 
-    </div>
+      <div class="hero-note">
 
+        <span class="hero-pill">
+          Context → Namespace
+        </span>
 
-    <div class="step">
+        <span class="hero-pill">
+          Workload → Pod
+        </span>
 
-      <span class="num">
-        WHICH AREA?
-      </span>
+        <span class="hero-pill">
+          Service → Network
+        </span>
 
-      <b>
-        Namespace
-      </b>
+        <span class="hero-pill">
+          PVC → Storage
+        </span>
 
-      <span class="mini">
-        Which logical workspace?
-      </span>
+        <span class="hero-pill">
+          Secret → Credentials
+        </span>
 
-    </div>
+        <span class="hero-pill">
+          Logs → Events → Diagnosis
+        </span>
 
-
-    <div class="step">
-
-      <span class="num">
-        WHAT?
-      </span>
-
-      <b>
-        Resource
-      </b>
-
-      <span class="mini">
-        Deployment, Pod, Service...
-      </span>
-
-    </div>
-
-
-    <div class="step">
-
-      <span class="num">
-        WHY?
-      </span>
-
-      <b>
-        Observe
-      </b>
-
-      <span class="mini">
-        Status → logs → describe → events
-      </span>
+      </div>
 
     </div>
 
   </div>
 
+</header>
 
-  <div class="model" style="margin-top:14px">
 
-    <div class="node">
 
-      <b>
-        Context
-      </b>
+<div class="layout">
 
-      <small>
-        cluster + user + namespace
-      </small>
+
+<!-- ============================================================
+     SIDEBAR
+============================================================ -->
+
+<aside class="sidebar">
+
+  <div class="sidebar-title">
+    Architecture map
+  </div>
+
+  <a href="#big-picture">
+    01 · Big picture
+  </a>
+
+  <a href="#control-loop">
+    02 · Control loop
+  </a>
+
+  <a href="#context">
+    03 · Context
+  </a>
+
+  <a href="#resources">
+    04 · Workloads
+  </a>
+
+  <a href="#pods">
+    05 · Pods
+  </a>
+
+  <a href="#networking">
+    06 · Networking
+  </a>
+
+  <a href="#storage">
+    07 · Storage
+  </a>
+
+  <a href="#mongodb">
+    08 · MongoDB
+  </a>
+
+  <a href="#security">
+    09 · Security
+  </a>
+
+  <a href="#debugging">
+    10 · Debugging
+  </a>
+
+  <a href="#production">
+    11 · Production
+  </a>
+
+  <a href="#cheatsheet">
+    12 · Commands
+  </a>
+
+</aside>
+
+
+
+<main class="content">
+
+
+<!-- ============================================================
+     01 BIG PICTURE
+============================================================ -->
+
+<section class="section" id="big-picture">
+
+  <div class="section-header">
+
+    <div class="section-number">
+      01 · Start here
+    </div>
+
+    <h2>
+      Kubernetes is a control system
+    </h2>
+
+    <p class="section-intro">
+      The most useful architectural mental model is:
+      <b>you describe desired state → Kubernetes observes actual state →
+      controllers continuously reconcile the difference.</b>
+    </p>
+
+  </div>
+
+
+  <div class="arch">
+
+    <div class="layer">
+
+      <div class="layer-title">
+        Your workstation
+      </div>
+
+      <div class="nodes">
+
+        <div class="node">
+          <b>kubectl</b>
+          <span>CLI / API client</span>
+        </div>
+
+        <div class="node">
+          <b>K9s</b>
+          <span>Terminal UI</span>
+        </div>
+
+        <div class="node">
+          <b>CI/CD</b>
+          <span>Automation</span>
+        </div>
+
+        <div class="node">
+          <b>GitOps</b>
+          <span>Desired state</span>
+        </div>
+
+      </div>
 
     </div>
 
 
-    <div class="arrow">
-      →
-    </div>
+    <div class="layer">
 
+      <div class="layer-title">
+        Control plane
+      </div>
 
-    <div class="node">
+      <div class="nodes">
 
-      <b>
-        Namespace
-      </b>
+        <div class="node blue">
+          <b>API Server</b>
+          <span>Cluster API</span>
+        </div>
 
-      <small>
-        logical boundary
-      </small>
+        <div class="node">
+          <b>etcd</b>
+          <span>Cluster state</span>
+        </div>
 
-    </div>
+        <div class="node">
+          <b>Scheduler</b>
+          <span>Pod placement</span>
+        </div>
 
+        <div class="node">
+          <b>Controllers</b>
+          <span>Reconciliation</span>
+        </div>
 
-    <div class="arrow">
-      →
-    </div>
+        <div class="node">
+          <b>Admission</b>
+          <span>Policy / mutation</span>
+        </div>
 
-
-    <div class="node">
-
-      <b>
-        Deployment
-      </b>
-
-      <small>
-        desired application state
-      </small>
-
-    </div>
-
-
-    <div class="arrow">
-      →
-    </div>
-
-
-    <div class="node">
-
-      <b>
-        ReplicaSet
-      </b>
-
-      <small>
-        maintains Pod count
-      </small>
+      </div>
 
     </div>
 
 
-    <div class="arrow">
-      →
+    <div class="layer">
+
+      <div class="layer-title">
+        Data plane
+      </div>
+
+      <div class="nodes">
+
+        <div class="node green">
+          <b>Nodes</b>
+          <span>Compute</span>
+        </div>
+
+        <div class="node">
+          <b>Kubelet</b>
+          <span>Node agent</span>
+        </div>
+
+        <div class="node">
+          <b>Container Runtime</b>
+          <span>Runs containers</span>
+        </div>
+
+        <div class="node">
+          <b>CNI</b>
+          <span>Networking</span>
+        </div>
+
+        <div class="node">
+          <b>CSI</b>
+          <span>Storage integration</span>
+        </div>
+
+      </div>
+
     </div>
 
 
-    <div class="node">
+    <div class="layer">
 
-      <b>
-        Pod
-      </b>
+      <div class="layer-title">
+        Application layer
+      </div>
 
-      <small>
-        runs containers
-      </small>
+      <div class="nodes">
+
+        <div class="node">
+          <b>Deployment</b>
+          <span>Stateless workloads</span>
+        </div>
+
+        <div class="node">
+          <b>StatefulSet</b>
+          <span>Stable identity</span>
+        </div>
+
+        <div class="node">
+          <b>DaemonSet</b>
+          <span>Per-node workload</span>
+        </div>
+
+        <div class="node">
+          <b>Job / CronJob</b>
+          <span>Batch work</span>
+        </div>
+
+        <div class="node">
+          <b>Pod</b>
+          <span>Containers</span>
+        </div>
+
+      </div>
 
     </div>
 
@@ -740,13 +1028,20 @@ code{
 
   <div class="callout">
 
-    <b>
-      Core idea:
-    </b>
+    <b>Architect-level question:</b>
 
-    Kubernetes is a system where you declare the desired state
-    and controllers continuously work toward making the actual
-    cluster match that desired state.
+    Don't ask only:
+
+    <i>
+      "What command fixes this?"
+    </i>
+
+    Ask:
+
+    <b>
+      "Which controller, resource, dependency or boundary is responsible
+      for this behavior?"
+    </b>
 
   </div>
 
@@ -754,56 +1049,246 @@ code{
 
 
 
-<!-- ========================= -->
-<!-- 2 CONTEXT -->
-<!-- ========================= -->
+<!-- ============================================================
+     02 CONTROL LOOP
+============================================================ -->
 
-<section class="section" id="context">
+<section class="section" id="control-loop">
 
-  <h2>
-    2. Context & Namespace
-  </h2>
+  <div class="section-header">
 
-  <p class="sub">
+    <div class="section-number">
+      02 · Control loop
+    </div>
 
-    Think:
+    <h2>
+      What happens when you run kubectl apply?
+    </h2>
 
-    <b>
-      Context = Where am I?
-    </b>
+    <p class="section-intro">
+      A YAML file is not the thing that actually runs your application.
+      It is an instruction submitted to the Kubernetes API.
+    </p>
 
-    <br>
-
-    <b>
-      Namespace = Which area am I looking at?
-    </b>
-
-  </p>
+  </div>
 
 
-  <div class="grid2">
+  <div class="loop">
+
+    <div class="loop-item">
+
+      <strong>
+        1 · kubectl
+      </strong>
+
+      <small>
+        Sends API request
+      </small>
+
+    </div>
+
+
+    <div class="loop-item">
+
+      <strong>
+        2 · API Server
+      </strong>
+
+      <small>
+        Auth / admission / validation
+      </small>
+
+    </div>
+
+
+    <div class="loop-item">
+
+      <strong>
+        3 · Desired State
+      </strong>
+
+      <small>
+        Stored as cluster state
+      </small>
+
+    </div>
+
+
+    <div class="loop-item">
+
+      <strong>
+        4 · Controllers
+      </strong>
+
+      <small>
+        Reconcile actual state
+      </small>
+
+    </div>
+
+
+    <div class="loop-item">
+
+      <strong>
+        5 · Nodes
+      </strong>
+
+      <small>
+        Kubelet runs workloads
+      </small>
+
+    </div>
+
+  </div>
+
+
+  <div class="grid2" style="margin-top:14px">
+
+    <div class="card">
+
+      <h3>
+        Desired state
+      </h3>
+
+      <p>
+        Example:
+        "I want 3 replicas of version 1.4 of my API."
+      </p>
+
+      <div class="command" style="margin-top:11px">
+
+kubectl apply -f deployment.yaml
+
+      </div>
+
+    </div>
 
 
     <div class="card">
+
+      <h3>
+        Actual state
+      </h3>
+
+      <p>
+        Maybe only 2 Pods are healthy because
+        the third Pod cannot schedule or pass readiness.
+      </p>
+
+      <div class="command" style="margin-top:11px">
+
+kubectl get deployment
+kubectl get pods
+kubectl get events
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="callout">
+
+    Kubernetes is not simply:
+
+    <b>
+      "run this container."
+    </b>
+
+    It is much closer to:
+
+    <b>
+      "maintain this system state."
+    </b>
+
+  </div>
+
+</section>
+
+
+
+<!-- ============================================================
+     03 CONTEXT
+============================================================ -->
+
+<section class="section" id="context">
+
+  <div class="section-header">
+
+    <div class="section-number">
+      03 · Where am I?
+    </div>
+
+    <h2>
+      Context, cluster and namespace
+    </h2>
+
+    <p class="section-intro">
+      Most dangerous Kubernetes mistakes start with operating in
+      the wrong context.
+    </p>
+
+  </div>
+
+
+  <div class="grid">
+
+    <div class="card blue">
 
       <h3>
         Context
       </h3>
 
       <p>
-
-        A context generally tells kubectl which
-        cluster and credentials to use and which namespace
-        should be the default.
-
+        A kubeconfig context selects the Kubernetes cluster,
+        user/credentials and default namespace.
       </p>
 
+    </div>
 
-      <div class="command" style="margin-top:10px">
+
+    <div class="card">
+
+      <h3>
+        Cluster
+      </h3>
+
+      <p>
+        The Kubernetes environment containing the control plane
+        and worker nodes.
+      </p>
+
+    </div>
+
+
+    <div class="card purple">
+
+      <h3>
+        Namespace
+      </h3>
+
+      <p>
+        A logical boundary for namespaced resources such as Pods,
+        Deployments, Services and Secrets.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="grid2" style="margin-top:12px">
+
+    <div>
+
+      <div class="command">
+
+kubectl config get-contexts
 
 kubectl config current-context
 
-kubectl config get-contexts
+kubectl config view --minify
 
 kubectl config use-context &lt;context&gt;
 
@@ -812,1374 +1297,15 @@ kubectl config use-context &lt;context&gt;
     </div>
 
 
+    <div>
 
-    <div class="card">
+      <div class="command">
 
-      <h3>
-        Namespace
-      </h3>
-
-      <p>
-
-        A namespace is a logical partition inside
-        a Kubernetes cluster.
-
-      </p>
-
-
-      <div class="command" style="margin-top:10px">
-
-kubectl get ns
-
-kubectl get pods -n payments
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <div class="compare" style="margin-top:12px">
-
-
-    <div class="col kubectl">
-
-      <div class="colhead">
-        kubectl
-      </div>
-
-      <div class="colbody">
-
-        <div class="command">
-
-kubectl config current-context
-
-kubectl config use-context staging
-
-kubectl get pods -n payments
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-
-    <div class="col k9s">
-
-      <div class="colhead">
-        K9s
-      </div>
-
-      <div class="colbody">
-
-        <div class="command">
-
-k9s
-
-:ctx
-
-:ns
-
-:po
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <div class="callout warn">
-
-    <b>
-      Safety habit:
-    </b>
-
-    Before editing or deleting anything,
-    verify your context and namespace.
-
-  </div>
-
-</section>
-
-
-
-<!-- ========================= -->
-<!-- RESOURCES -->
-<!-- ========================= -->
-
-<section class="section" id="resources">
-
-  <h2>
-    3. What actually runs?
-  </h2>
-
-  <p class="sub">
-
-    Kubernetes has many resource types.
-    Start with these.
-
-  </p>
-
-
-  <div class="grid">
-
-
-    <div class="card">
-
-      <h3>
-        Deployment
-      </h3>
-
-      <p>
-
-        Defines how an application should run,
-        including its Pod template and replica count.
-
-      </p>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>
-        ReplicaSet
-      </h3>
-
-      <p>
-
-        Ensures the desired number of matching
-        Pods exists.
-
-      </p>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>
-        Pod
-      </h3>
-
-      <p>
-
-        Smallest deployable unit.
-        Contains one or more containers.
-
-      </p>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>
-        Service
-      </h3>
-
-      <p>
-
-        Gives a stable network endpoint
-        for a group of Pods.
-
-      </p>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>
-        Ingress
-      </h3>
-
-      <p>
-
-        Routes external HTTP/HTTPS traffic
-        toward Services.
-
-      </p>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>
-        Job / CronJob
-      </h3>
-
-      <p>
-
-        Runs work to completion,
-        either once or on a schedule.
-
-      </p>
-
-    </div>
-
-  </div>
-
-
-  <div class="model" style="margin-top:14px">
-
-
-    <div class="node">
-
-      <b>
-        Ingress
-      </b>
-
-      <small>
-        external HTTP
-      </small>
-
-    </div>
-
-
-    <div class="arrow">
-      →
-    </div>
-
-
-    <div class="node">
-
-      <b>
-        Service
-      </b>
-
-      <small>
-        stable endpoint
-      </small>
-
-    </div>
-
-
-    <div class="arrow">
-      →
-    </div>
-
-
-    <div class="node">
-
-      <b>
-        Pods
-      </b>
-
-      <small>
-        application containers
-      </small>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-
-<!-- ========================= -->
-<!-- PODS -->
-<!-- ========================= -->
-
-<section class="section" id="pods">
-
-  <h2>
-    4. Pods: the thing you debug most
-  </h2>
-
-  <p class="sub">
-
-    Pod status is a clue, not the complete diagnosis.
-
-  </p>
-
-
-  <div class="status">
-
-
-    <div class="s run">
-
-      <b>
-        Running
-      </b>
-
-      <small>
-        Pod is running.
-        Containers may still fail readiness.
-      </small>
-
-    </div>
-
-
-    <div class="s">
-
-      <b>
-        Pending
-      </b>
-
-      <small>
-        Pod has not fully started.
-        Check scheduling/resources.
-      </small>
-
-    </div>
-
-
-    <div class="s wait">
-
-      <b>
-        ContainerCreating
-      </b>
-
-      <small>
-        Container setup is in progress.
-      </small>
-
-    </div>
-
-
-    <div class="s wait">
-
-      <b>
-        CrashLoopBackOff
-      </b>
-
-      <small>
-        Container repeatedly exits.
-      </small>
-
-    </div>
-
-
-    <div class="s bad">
-
-      <b>
-        ImagePullBackOff
-      </b>
-
-      <small>
-        Kubernetes cannot pull the image.
-      </small>
-
-    </div>
-
-  </div>
-
-
-
-  <h3>
-    Read a Pod like an operator
-  </h3>
-
-
-  <table>
-
-    <tr>
-
-      <th>
-        Signal
-      </th>
-
-      <th>
-        Ask
-      </th>
-
-      <th>
-        Next action
-      </th>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        READY
-      </td>
-
-      <td>
-        Are the expected containers ready?
-      </td>
-
-      <td>
-        describe + logs
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        STATUS
-      </td>
-
-      <td>
-        What lifecycle state is it in?
-      </td>
-
-      <td>
-        Use status to choose investigation
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        RESTARTS
-      </td>
-
-      <td>
-        Is the container repeatedly dying?
-      </td>
-
-      <td>
-        logs --previous + describe
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        AGE
-      </td>
-
-      <td>
-        Did this Pod appear recently?
-      </td>
-
-      <td>
-        Compare with deployment timing
-      </td>
-
-    </tr>
-
-  </table>
-
-</section>
-
-
-
-<!-- ========================= -->
-<!-- DEBUGGING -->
-<!-- ========================= -->
-
-<section class="section" id="workflow">
-
-  <h2>
-    5. Production debugging flow
-  </h2>
-
-  <p class="sub">
-
-    Example:
-
-    <b>
-      "The API is failing."
-    </b>
-
-    Don't jump randomly between resources.
-
-  </p>
-
-
-  <div class="flow">
-
-
-    <div class="step">
-
-      <span class="num">
-        01
-      </span>
-
-      <b>
-        Context
-      </b>
-
-      <span class="mini">
-        Right cluster?
-      </span>
-
-    </div>
-
-
-    <div class="step">
-
-      <span class="num">
-        02
-      </span>
-
-      <b>
-        Namespace
-      </b>
-
-      <span class="mini">
-        Right area?
-      </span>
-
-    </div>
-
-
-    <div class="step">
-
-      <span class="num">
-        03
-      </span>
-
-      <b>
-        Deployment → Pods
-      </b>
-
-      <span class="mini">
-        Is workload healthy?
-      </span>
-
-    </div>
-
-
-    <div class="step">
-
-      <span class="num">
-        04
-      </span>
-
-      <b>
-        Status
-      </b>
-
-      <span class="mini">
-        READY / STATUS / RESTARTS
-      </span>
-
-    </div>
-
-  </div>
-
-
-  <div class="flow" style="margin-top:10px">
-
-
-    <div class="step">
-
-      <span class="num">
-        05
-      </span>
-
-      <b>
-        Logs
-      </b>
-
-      <span class="mini">
-        What is the app saying?
-      </span>
-
-    </div>
-
-
-    <div class="step">
-
-      <span class="num">
-        06
-      </span>
-
-      <b>
-        Describe
-      </b>
-
-      <span class="mini">
-        What does Kubernetes know?
-      </span>
-
-    </div>
-
-
-    <div class="step">
-
-      <span class="num">
-        07
-      </span>
-
-      <b>
-        Events
-      </b>
-
-      <span class="mini">
-        What happened recently?
-      </span>
-
-    </div>
-
-
-    <div class="step">
-
-      <span class="num">
-        08
-      </span>
-
-      <b>
-        Service
-      </b>
-
-      <span class="mini">
-        Can traffic reach Pods?
-      </span>
-
-    </div>
-
-  </div>
-
-
-
-  <div class="compare" style="margin-top:14px">
-
-
-    <div class="col kubectl">
-
-      <div class="colhead">
-        kubectl path
-      </div>
-
-      <div class="colbody">
-
-        <div class="command">
-
-kubectl config current-context
+kubectl get namespaces
 
 kubectl get pods -n &lt;namespace&gt;
 
-kubectl logs &lt;pod&gt; -n &lt;namespace&gt;
-
-kubectl logs &lt;pod&gt; --previous -n &lt;namespace&gt;
-
-kubectl describe pod &lt;pod&gt; -n &lt;namespace&gt;
-
-kubectl get events -n &lt;namespace&gt;
-
 kubectl get svc -n &lt;namespace&gt;
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-
-    <div class="col k9s">
-
-      <div class="colhead">
-        K9s path
-      </div>
-
-      <div class="colbody">
-
-        <div class="command">
-
-:ctx
-
-:ns
-
-:deploy
-
-:po
-
-l       # logs
-
-f       # follow logs
-
-d       # describe
-
-:events
-
-:svc
-
-s       # shell
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-
-<!-- ========================= -->
-<!-- COMMAND TABLE -->
-<!-- ========================= -->
-
-<section class="section" id="commands">
-
-  <h2>
-    6. Same task, two interfaces
-  </h2>
-
-  <p class="sub">
-
-    kubectl is the command-line client.
-    K9s is an interactive terminal UI for Kubernetes.
-
-  </p>
-
-
-  <input
-    class="search"
-    id="filter"
-    placeholder="Filter this table… e.g. logs, service, pod"
-  >
-
-
-  <table id="cmdtable">
-
-    <tr>
-
-      <th>
-        Use case
-      </th>
-
-      <th>
-        kubectl
-      </th>
-
-      <th>
-        K9s
-      </th>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        See current context
-      </td>
-
-      <td>
-        <code>
-          kubectl config current-context
-        </code>
-      </td>
-
-      <td>
-        <code>
-          :ctx
-        </code>
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        List namespaces
-      </td>
-
-      <td>
-        <code>
-          kubectl get ns
-        </code>
-      </td>
-
-      <td>
-        <code>
-          :ns
-        </code>
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        List Pods
-      </td>
-
-      <td>
-        <code>
-          kubectl get pods
-        </code>
-      </td>
-
-      <td>
-        <code>
-          :po
-        </code>
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        Deployments
-      </td>
-
-      <td>
-        <code>
-          kubectl get deploy
-        </code>
-      </td>
-
-      <td>
-        <code>
-          :deploy
-        </code>
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        Services
-      </td>
-
-      <td>
-        <code>
-          kubectl get svc
-        </code>
-      </td>
-
-      <td>
-        <code>
-          :svc
-        </code>
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        Inspect resource
-      </td>
-
-      <td>
-        <code>
-          kubectl describe pod &lt;pod&gt;
-        </code>
-      </td>
-
-      <td>
-        Select → <code>d</code>
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        View logs
-      </td>
-
-      <td>
-        <code>
-          kubectl logs &lt;pod&gt;
-        </code>
-      </td>
-
-      <td>
-        Select → <code>l</code>
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        Follow logs
-      </td>
-
-      <td>
-        <code>
-          kubectl logs -f &lt;pod&gt;
-        </code>
-      </td>
-
-      <td>
-        Select → <code>f</code>
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        Shell into Pod
-      </td>
-
-      <td>
-        <code>
-          kubectl exec -it &lt;pod&gt; -- /bin/sh
-        </code>
-      </td>
-
-      <td>
-        Select → <code>s</code>
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        Events
-      </td>
-
-      <td>
-        <code>
-          kubectl get events
-        </code>
-      </td>
-
-      <td>
-        <code>
-          :events
-        </code>
-      </td>
-
-    </tr>
-
-
-    <tr>
-
-      <td>
-        Delete resource
-      </td>
-
-      <td>
-        <code>
-          kubectl delete …
-        </code>
-      </td>
-
-      <td>
-        Select → <code>Ctrl+d</code>
-      </td>
-
-    </tr>
-
-  </table>
-
-
-  <p class="mini" style="margin-top:10px">
-
-    K9s keybindings can vary by version/configuration.
-    Press <code>?</code> inside K9s to see the active bindings.
-
-  </p>
-
-</section>
-
-
-
-<!-- ========================= -->
-<!-- RECIPES -->
-<!-- ========================= -->
-
-<section class="section" id="recipes">
-
-  <h2>
-    7. Common use cases
-  </h2>
-
-
-  <div class="tabs">
-
-    <button
-      class="active"
-      data-tab="logs"
-    >
-      Why is my app failing?
-    </button>
-
-
-    <button
-      data-tab="restart"
-    >
-      Why are Pods restarting?
-    </button>
-
-
-    <button
-      data-tab="service"
-    >
-      Is the Service reaching Pods?
-    </button>
-
-
-    <button
-      data-tab="deploy"
-    >
-      Did my Deployment roll out?
-    </button>
-
-  </div>
-
-
-
-  <!-- LOGS -->
-
-  <div
-    id="logs"
-    class="panel active"
-  >
-
-    <div class="grid2">
-
-
-      <div class="card">
-
-        <h3>
-          kubectl
-        </h3>
-
-        <div class="command">
-
-kubectl get pods
-
-kubectl logs &lt;pod&gt;
-
-kubectl logs &lt;pod&gt; --previous
-
-kubectl describe pod &lt;pod&gt;
-
-kubectl get events
-
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>
-          K9s
-        </h3>
-
-        <div class="command">
-
-:po
-
-select Pod → l
-
-select Pod → d
-
-:events
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <div class="callout">
-
-      <b>
-        Investigation first.
-      </b>
-
-      Observe before changing resources.
-
-    </div>
-
-  </div>
-
-
-
-  <!-- RESTART -->
-
-  <div
-    id="restart"
-    class="panel"
-  >
-
-    <div class="grid2">
-
-
-      <div class="card">
-
-        <h3>
-          kubectl
-        </h3>
-
-        <div class="command">
-
-kubectl get pods
-
-kubectl logs &lt;pod&gt; --previous
-
-kubectl describe pod &lt;pod&gt;
-
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>
-          K9s
-        </h3>
-
-        <div class="command">
-
-:po
-
-check RESTARTS
-
-l
-
-d
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <p class="sub" style="margin-top:12px">
-
-      Common investigation areas:
-
-      application exits,
-      probes,
-      configuration,
-      dependencies,
-      memory/resource limits,
-      node events.
-
-    </p>
-
-  </div>
-
-
-
-  <!-- SERVICE -->
-
-  <div
-    id="service"
-    class="panel"
-  >
-
-    <div class="grid2">
-
-
-      <div class="card">
-
-        <h3>
-          kubectl
-        </h3>
-
-        <div class="command">
-
-kubectl get svc
-
-kubectl describe svc &lt;service&gt;
-
-kubectl get pods --show-labels
-
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>
-          K9s
-        </h3>
-
-        <div class="command">
-
-:svc
-
-select Service → d
-
-:po
-
-inspect labels
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <p class="sub" style="margin-top:12px">
-
-      Services route traffic to Pods using selectors.
-
-      If the selector does not match the intended Pods,
-      traffic will not reach them.
-
-    </p>
-
-  </div>
-
-
-
-  <!-- DEPLOYMENT -->
-
-  <div
-    id="deploy"
-    class="panel"
-  >
-
-    <div class="grid2">
-
-
-      <div class="card">
-
-        <h3>
-          kubectl
-        </h3>
-
-        <div class="command">
-
-kubectl get deploy
-
-kubectl rollout status deployment/&lt;name&gt;
-
-kubectl describe deployment &lt;name&gt;
-
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>
-          K9s
-        </h3>
-
-        <div class="command">
-
-:deploy
-
-inspect:
-
-READY
-UP-TO-DATE
-AVAILABLE
-
-d
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <p class="sub" style="margin-top:12px">
-
-      Follow the chain:
-
-      Deployment
-
-      →
-
-      ReplicaSet
-
-      →
-
-      Pods.
-
-    </p>
-
-  </div>
-
-</section>
-
-
-
-<!-- ========================= -->
-<!-- SAFETY -->
-<!-- ========================= -->
-
-<section class="section" id="safety">
-
-  <h2>
-    8. Production safety
-  </h2>
-
-  <p class="sub">
-
-    Make “where am I?” a reflex before every change.
-
-  </p>
-
-
-  <div class="grid2">
-
-
-    <div class="card">
-
-      <h3>
-        Read-only investigation
-      </h3>
-
-      <div class="command">
-
-kubectl config current-context
-
-kubectl get pods
-
-kubectl describe pod &lt;pod&gt;
-
-kubectl logs &lt;pod&gt;
-
-kubectl get events
-
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>
-        Potentially destructive
-      </h3>
-
-      <div class="command">
-
-kubectl edit …
-
-kubectl delete …
-
-kubectl scale …
-
-kubectl rollout …
 
       </div>
 
@@ -2190,14 +1316,217 @@ kubectl rollout …
 
   <div class="callout danger">
 
+    <b>Production reflex:</b>
+
+    Before:
+
+    <code>
+      delete
+    </code>
+
+    <code>
+      edit
+    </code>
+
+    <code>
+      scale
+    </code>
+
+    <code>
+      rollout
+    </code>
+
+    first verify:
+
     <b>
-      Before modifying or deleting anything:
+      context → namespace → resource → expected effect
     </b>
 
-    verify the context,
-    verify the namespace,
-    identify the exact resource,
-    and understand the expected effect.
+  </div>
+
+
+  <details>
+
+    <summary>
+      K9s equivalent
+    </summary>
+
+    <div class="details-content">
+
+      <div class="command">
+
+k9s
+
+:ctx
+
+:ns
+
+      </div>
+
+      <p>
+        K9s can also be launched against a specific context or namespace.
+      </p>
+
+      <div class="command">
+
+k9s --context &lt;context&gt;
+
+k9s -n &lt;namespace&gt;
+
+k9s --readonly
+
+      </div>
+
+    </div>
+
+  </details>
+
+</section>
+
+
+
+<!-- ============================================================
+     04 RESOURCES
+============================================================ -->
+
+<section class="section" id="resources">
+
+  <div class="section-header">
+
+    <div class="section-number">
+      04 · Workload architecture
+    </div>
+
+    <h2>
+      Deployment vs StatefulSet vs DaemonSet vs Job
+    </h2>
+
+    <p class="section-intro">
+      The workload type should follow the application's behavior,
+      not the other way around.
+    </p>
+
+  </div>
+
+
+  <div class="grid2">
+
+
+    <div class="card blue">
+
+      <h3>
+        Deployment
+      </h3>
+
+      <p>
+        Best mental model:
+        interchangeable/stateless application replicas.
+      </p>
+
+      <span class="mini">
+        API servers · web apps · workers
+      </span>
+
+    </div>
+
+
+    <div class="card purple">
+
+      <h3>
+        StatefulSet
+      </h3>
+
+      <p>
+        Use when individual replicas need stable identity,
+        stable storage or ordered operations.
+      </p>
+
+      <span class="mini">
+        MongoDB · Kafka · ZooKeeper-style workloads
+      </span>
+
+    </div>
+
+
+    <div class="card cyan">
+
+      <h3>
+        DaemonSet
+      </h3>
+
+      <p>
+        Ensures a workload runs on nodes matching its placement rules.
+      </p>
+
+      <span class="mini">
+        log agents · node monitoring · CNI components
+      </span>
+
+    </div>
+
+
+    <div class="card orange">
+
+      <h3>
+        Job / CronJob
+      </h3>
+
+      <p>
+        Work that finishes rather than continuously serving traffic.
+      </p>
+
+      <span class="mini">
+        migrations · backups · scheduled reports
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div class="model" style="
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:18px;
+    background:#f8fafc;
+    border:1px solid var(--border);
+    border-radius:14px;
+    margin-top:13px;
+  ">
+
+    <div class="node">
+      <b>Deployment</b>
+      <span>ReplicaSet</span>
+    </div>
+
+    <div>→</div>
+
+    <div class="node">
+      <b>ReplicaSet</b>
+      <span>Pod replicas</span>
+    </div>
+
+    <div>→</div>
+
+    <div class="node">
+      <b>Pod</b>
+      <span>Container(s)</span>
+    </div>
+
+  </div>
+
+
+  <div class="callout">
+
+    <b>StatefulSet insight:</b>
+
+    StatefulSets provide stable identity and are designed for applications
+    that need persistent storage and/or stable network identity.
+    Individual Pods are not interchangeable in the same way that
+    Deployment replicas generally are. :contentReference[oaicite:1]{index=1}
 
   </div>
 
@@ -2205,90 +1534,312 @@ kubectl rollout …
 
 
 
-<!-- ========================= -->
-<!-- MEMORY -->
-<!-- ========================= -->
+<!-- ============================================================
+     05 PODS
+============================================================ -->
 
-<section class="section" id="memory">
+<section class="section" id="pods">
 
-  <h2>
-    9. The small set worth memorizing
-  </h2>
+  <div class="section-header">
 
-  <p class="sub">
+    <div class="section-number">
+      05 · Pod anatomy
+    </div>
 
-    You do not need to memorize Kubernetes.
-    Memorize the investigation path.
+    <h2>
+      A Pod is a runtime boundary
+    </h2>
 
-  </p>
+    <p class="section-intro">
+      Containers inside a Pod share the Pod's network namespace and can
+      share mounted volumes. The Pod is the unit Kubernetes schedules.
+    </p>
+
+  </div>
 
 
-  <div class="grid">
+  <div class="arch">
 
+    <div class="layer">
 
-    <div class="card">
+      <div class="layer-title">
+        Pod
+      </div>
 
-      <h3>
-        WHERE
-      </h3>
+      <div class="nodes">
 
-      <div class="command">
+        <div class="node">
+          <b>Container</b>
+          <span>Application</span>
+        </div>
 
-kubectl config current-context
+        <div class="node">
+          <b>Sidecar</b>
+          <span>Supporting process</span>
+        </div>
 
-:ctx
+        <div class="node">
+          <b>Network</b>
+          <span>Pod IP / ports</span>
+        </div>
+
+        <div class="node">
+          <b>Volumes</b>
+          <span>Mounted storage</span>
+        </div>
+
+        <div class="node">
+          <b>ServiceAccount</b>
+          <span>Identity</span>
+        </div>
 
       </div>
 
     </div>
 
+  </div>
 
-    <div class="card">
 
-      <h3>
-        AREA
-      </h3>
+  <h3>
+    Pod status → what should I investigate?
+  </h3>
 
-      <div class="command">
 
-kubectl get ns
+  <div class="status-grid">
 
-:ns
-
-      </div>
-
+    <div class="status green">
+      <strong>Running</strong>
+      <span>
+        Running does not automatically mean ready or healthy.
+      </span>
     </div>
 
 
-    <div class="card">
-
-      <h3>
-        WORKLOAD
-      </h3>
-
-      <div class="command">
-
-kubectl get pods
-
-:po
-
-      </div>
-
+    <div class="status orange">
+      <strong>Pending</strong>
+      <span>
+        Scheduling, resources, affinity, taints or volumes.
+      </span>
     </div>
 
 
-    <div class="card">
+    <div class="status orange">
+      <strong>CrashLoopBackOff</strong>
+      <span>
+        Repeated container exits.
+        Inspect previous logs and termination state.
+      </span>
+    </div>
 
-      <h3>
-        WHY
-      </h3>
+
+    <div class="status red">
+      <strong>ImagePullBackOff</strong>
+      <span>
+        Image, registry, credentials or network problem.
+      </span>
+    </div>
+
+
+    <div class="status cyan">
+      <strong>ContainerCreating</strong>
+      <span>
+        Image, volume, networking or runtime setup.
+      </span>
+    </div>
+
+  </div>
+
+
+  <div class="grid2" style="margin-top:13px">
+
+    <div>
 
       <div class="command">
 
-kubectl logs &lt;pod&gt;
+kubectl get pods -o wide
 
 kubectl describe pod &lt;pod&gt;
 
+kubectl logs &lt;pod&gt;
+
+kubectl logs &lt;pod&gt; --previous
+
+      </div>
+
+    </div>
+
+
+    <div>
+
+      <div class="command">
+
+:po
+
+select Pod
+
+l     # logs
+
+d     # describe
+
+s     # shell
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <details>
+
+    <summary>
+      Architect question: "Running" vs "Ready"
+    </summary>
+
+    <div class="details-content">
+
+      A container can be running while its readiness probe says:
+
+      <b>
+        "Do not send traffic here."
+      </b>
+
+      This is why a healthy investigation should separate:
+
+      <br><br>
+
+      <code>
+        Process alive?
+      </code>
+
+      →
+
+      <code>
+        Container ready?
+      </code>
+
+      →
+
+      <code>
+        Pod selected by Service?
+      </code>
+
+      →
+
+      <code>
+        Network reachable?
+      </code>
+
+    </div>
+
+  </details>
+
+</section>
+
+
+
+<!-- ============================================================
+     06 NETWORKING
+============================================================ -->
+
+<section class="section" id="networking">
+
+  <div class="section-header">
+
+    <div class="section-number">
+      06 · Networking
+    </div>
+
+    <h2>
+      Trace the request instead of guessing
+    </h2>
+
+    <p class="section-intro">
+      A Service is a stable abstraction over a changing set of Pods.
+      Kubernetes uses selectors and EndpointSlices to connect the two.
+    </p>
+
+  </div>
+
+
+  <div class="arch">
+
+    <div class="layer">
+
+      <div class="layer-title">
+        External traffic
+      </div>
+
+      <div class="nodes">
+
+        <div class="node">
+          <b>Client</b>
+          <span>Browser / API consumer</span>
+        </div>
+
+        <div class="node">
+          <b>Load Balancer</b>
+          <span>Cloud / infrastructure</span>
+        </div>
+
+        <div class="node">
+          <b>Ingress / Gateway</b>
+          <span>HTTP routing</span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="layer">
+
+      <div class="layer-title">
+        Kubernetes service layer
+      </div>
+
+      <div class="nodes">
+
+        <div class="node">
+          <b>Service</b>
+          <span>Stable endpoint</span>
+        </div>
+
+        <div class="node">
+          <b>EndpointSlice</b>
+          <span>Backend endpoints</span>
+        </div>
+
+        <div class="node">
+          <b>Pod IP</b>
+          <span>Actual workload endpoint</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="grid2" style="margin-top:13px">
+
+    <div class="card">
+
+      <h3>
+        Debug a Service
+      </h3>
+
+      <div class="command" style="margin-top:10px">
+
+kubectl get svc -n &lt;ns&gt;
+
+kubectl describe svc &lt;svc&gt; -n &lt;ns&gt;
+
+kubectl get endpointslice -n &lt;ns&gt;
+
+kubectl get pods --show-labels -n &lt;ns&gt;
+
       </div>
 
     </div>
@@ -2297,31 +1848,20 @@ kubectl describe pod &lt;pod&gt;
     <div class="card">
 
       <h3>
-        EVENTS
+        K9s path
       </h3>
 
-      <div class="command">
-
-kubectl get events
-
-:events
-
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>
-        NETWORK
-      </h3>
-
-      <div class="command">
-
-kubectl get svc
+      <div class="command" style="margin-top:10px">
 
 :svc
+
+select Service
+
+d
+
+:po
+
+inspect labels
 
       </div>
 
@@ -2332,50 +1872,2268 @@ kubectl get svc
 
   <div class="callout">
 
+    A Service normally selects Pods through labels and Kubernetes maintains
+    EndpointSlices representing the service backends. This is why debugging
+    should follow:
+
     <b>
-      One-line memory:
+      Service → selector → EndpointSlice → Pod
     </b>
 
-    <code>
+    rather than only looking at the Service object. :contentReference[oaicite:2]{index=2}
 
-      Context → Namespace → Deployment → Pod → Status → Logs → Describe → Events → Service
+  </div>
 
-    </code>
+
+  <details>
+
+    <summary>
+      In-cluster DNS mental model
+    </summary>
+
+    <div class="details-content">
+
+      A typical Kubernetes Service can be referenced through DNS using its
+      Service name and namespace.
+
+      <br><br>
+
+      Example:
+
+      <div class="command">
+
+mongo.data.svc.cluster.local
+
+      </div>
+
+      Inside the same namespace, the shorter name may often be sufficient:
+
+      <div class="command">
+
+mongo
+
+      </div>
+
+      For a StatefulSet with a governing Headless Service, individual Pods
+      can also have stable DNS identities. :contentReference[oaicite:3]{index=3}
+
+    </div>
+
+  </details>
+
+
+  <details>
+
+    <summary>
+      NetworkPolicy mental model
+    </summary>
+
+    <div class="details-content">
+
+      NetworkPolicy can restrict traffic at the Pod/network level,
+      but enforcement depends on the cluster's networking plugin supporting
+      NetworkPolicy.
+
+      <br><br>
+
+      Architect question:
+
+      <b>
+        "Can DNS resolve?"
+      </b>
+
+      is different from:
+
+      <b>
+        "Is traffic allowed?"
+      </b>
+
+      which is different from:
+
+      <b>
+        "Is the destination accepting traffic?"
+      </b>
+
+      :contentReference[oaicite:4]{index=4}
+
+    </div>
+
+  </details>
+
+</section>
+
+
+
+<!-- ============================================================
+     07 STORAGE
+============================================================ -->
+
+<section class="section" id="storage">
+
+  <div class="section-header">
+
+    <div class="section-number">
+      07 · Storage
+    </div>
+
+    <h2>
+      Container storage is not automatically durable storage
+    </h2>
+
+    <p class="section-intro">
+      For stateful systems, distinguish the Pod lifecycle from the storage
+      lifecycle.
+    </p>
+
+  </div>
+
+
+  <div class="arch">
+
+    <div class="layer">
+
+      <div class="layer-title">
+        Application
+      </div>
+
+      <div class="nodes">
+
+        <div class="node">
+          <b>Pod</b>
+          <span>Container filesystem</span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="layer">
+
+      <div class="layer-title">
+        Kubernetes storage abstraction
+      </div>
+
+      <div class="nodes">
+
+        <div class="node">
+          <b>PersistentVolumeClaim</b>
+          <span>Application request</span>
+        </div>
+
+        <div class="node">
+          <b>PersistentVolume</b>
+          <span>Actual cluster storage</span>
+        </div>
+
+        <div class="node">
+          <b>StorageClass</b>
+          <span>Provisioning profile</span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="layer">
+
+      <div class="layer-title">
+        Infrastructure
+      </div>
+
+      <div class="nodes">
+
+        <div class="node">
+          <b>Cloud Disk</b>
+          <span>EBS / PD / Disk etc.</span>
+        </div>
+
+        <div class="node">
+          <b>Network Storage</b>
+          <span>NFS / CSI backend</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="command" style="margin-top:13px">
+
+kubectl get pvc -A
+
+kubectl get pv
+
+kubectl get storageclass
+
+kubectl describe pvc &lt;claim&gt; -n &lt;namespace&gt;
 
   </div>
 
 
   <div class="callout warn">
 
+    For a database incident, never reason only from:
+
+    <code>
+      Pod = Running
+    </code>
+
+    Also ask:
+
     <b>
-      Important distinction:
+      Is the PVC bound? Where is the volume?
+      What happens to it if the Pod moves? What are the backup/restore guarantees?
     </b>
-
-    Kubernetes is the platform/system.
-
-    <b>kubectl</b>
-    is the CLI you use to interact with it.
-
-    <b>K9s</b>
-    is an interactive terminal UI that helps you navigate
-    and operate those same Kubernetes resources.
 
   </div>
 
 </section>
 
 
-<div class="footer">
 
-  Kubernetes learning sheet
-  •
-  Start small
-  •
-  Follow the resource chain
-  •
-  Investigate before changing
+<!-- ============================================================
+     08 MONGODB
+============================================================ -->
 
-</div>
+<section class="section" id="mongodb">
+
+  <div class="section-header">
+
+    <div class="section-number">
+      08 · Real production use case
+    </div>
+
+    <h2>
+      MongoDB is running on Kubernetes — how do I access it?
+    </h2>
+
+    <p class="section-intro">
+      Start by discovering the deployment model.
+      Do not immediately exec into a random Pod.
+    </p>
+
+  </div>
+
+
+  <!-- MONGO DISCOVERY -->
+
+  <div class="usecase">
+
+    <div class="usecase-head">
+
+      <div>
+
+        <div class="usecase-title">
+          Step 1 — Discover how MongoDB is deployed
+        </div>
+
+        <div class="usecase-subtitle">
+          Deployment? StatefulSet? Operator? Replica set? Service?
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="usecase-body">
+
+      <div class="command">
+
+kubectl get pods -n &lt;mongo-namespace&gt; -o wide
+
+kubectl get deploy,sts,svc,pvc -n &lt;mongo-namespace&gt;
+
+kubectl get pods -n &lt;mongo-namespace&gt; --show-labels
+
+      </div>
+
+      <div class="callout">
+
+        If MongoDB is deployed as a StatefulSet,
+        expect stable Pod identities and persistent storage.
+        If an operator manages it, inspect the operator's
+        Custom Resource as well as the generated Kubernetes resources.
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- SERVICE -->
+
+  <div class="usecase">
+
+    <div class="usecase-head">
+
+      <div>
+
+        <div class="usecase-title">
+          Step 2 — Find the network entry point
+        </div>
+
+        <div class="usecase-subtitle">
+          Service → endpoint → MongoDB Pods
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="usecase-body">
+
+      <div class="grid2">
+
+        <div>
+
+          <div class="command">
+
+kubectl get svc -n &lt;mongo-namespace&gt;
+
+kubectl describe svc &lt;mongo-service&gt; \
+  -n &lt;mongo-namespace&gt;
+
+kubectl get endpointslice \
+  -n &lt;mongo-namespace&gt;
+
+          </div>
+
+        </div>
+
+
+        <div>
+
+          <div class="command">
+
+:svc
+
+select MongoDB Service
+
+d
+
+:po
+
+inspect MongoDB Pods
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- PORT FORWARD -->
+
+  <div class="usecase">
+
+    <div class="usecase-head">
+
+      <div>
+
+        <div class="usecase-title">
+          Step 3 — Connect from your laptop using port-forward
+        </div>
+
+        <div class="usecase-subtitle">
+          Excellent for controlled debugging/admin access
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="usecase-body">
+
+      <div class="command">
+
+kubectl port-forward \
+  -n &lt;mongo-namespace&gt; \
+  svc/&lt;mongo-service&gt; \
+  27017:27017
+
+      </div>
+
+
+      <p>
+        Then in another terminal:
+      </p>
+
+
+      <div class="command">
+
+mongosh \
+  "mongodb://127.0.0.1:27017/&lt;database&gt;" \
+  --username &lt;user&gt; \
+  --authenticationDatabase admin
+
+      </div>
+
+
+      <div class="callout green">
+
+        MongoDB's documentation shows <code>mongosh</code> connecting to
+        localhost on port 27017, while Kubernetes documents
+        <code>kubectl port-forward</code> specifically as a useful
+        mechanism for database debugging. :contentReference[oaicite:5]{index=5}
+
+      </div>
+
+
+      <div class="callout warn">
+
+        <b>
+          Important:
+        </b>
+
+        Port-forward is an access/debugging technique.
+        It is not the same thing as designing a production network path
+        for your application.
+
+        Kubernetes also notes that port-forward access is governed by RBAC
+        and can provide direct network access to workloads. :contentReference[oaicite:6]{index=6}
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- IN-CLUSTER -->
+
+  <div class="usecase">
+
+    <div class="usecase-head">
+
+      <div>
+
+        <div class="usecase-title">
+          Step 4 — Connect from inside the cluster
+        </div>
+
+        <div class="usecase-subtitle">
+          Often the better method for testing application-to-database connectivity
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="usecase-body">
+
+      <p>
+        If you already have a Pod containing <code>mongosh</code>,
+        connect to the MongoDB Service DNS name:
+      </p>
+
+
+      <div class="command">
+
+kubectl exec -it &lt;client-pod&gt; \
+  -n &lt;application-namespace&gt; \
+  -- mongosh \
+  "mongodb://&lt;mongo-service&gt;.&lt;mongo-namespace&gt;.svc.cluster.local:27017/&lt;database&gt;" \
+  --username &lt;user&gt; \
+  --authenticationDatabase admin
+
+      </div>
+
+
+      <p>
+        If that Pod does not contain <code>mongosh</code>, use an approved
+        database client/debug image rather than modifying the production
+        application container.
+      </p>
+
+
+      <div class="command">
+
+kubectl run mongo-client \
+  -n &lt;mongo-namespace&gt; \
+  --rm -it \
+  --restart=Never \
+  --image=&lt;approved-mongo-client-image&gt; \
+  -- mongosh \
+  "mongodb://&lt;mongo-service&gt;:27017/&lt;database&gt;"
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- QUERY -->
+
+  <div class="usecase">
+
+    <div class="usecase-head">
+
+      <div>
+
+        <div class="usecase-title">
+          Step 5 — Now actually run MongoDB queries
+        </div>
+
+        <div class="usecase-subtitle">
+          Start with safe observational queries
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="usecase-body">
+
+      <div class="grid2">
+
+        <div class="card">
+
+          <h3>
+            Understand the database
+          </h3>
+
+          <div class="command">
+
+show dbs
+
+use appdb
+
+show collections
+
+db.stats()
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3>
+            Inspect data
+          </h3>
+
+          <div class="command">
+
+db.users.find({
+  status: "active"
+}).limit(20)
+
+db.orders.countDocuments({
+  status: "pending"
+})
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3>
+            Inspect indexes
+          </h3>
+
+          <div class="command">
+
+db.users.getIndexes()
+
+db.orders.getIndexes()
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3>
+            Investigate a query
+          </h3>
+
+          <div class="command">
+
+db.users
+  .find({email:"user@example.com"})
+  .explain("executionStats")
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="callout warn">
+
+        Run expensive queries carefully in production.
+        "Read-only" does not mean "zero operational impact."
+
+        An execution-plan investigation, aggregation, collection scan
+        or large result set can still consume CPU, memory or I/O.
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- AUTH -->
+
+  <div class="usecase">
+
+    <div class="usecase-head">
+
+      <div>
+
+        <div class="usecase-title">
+          Step 6 — Authentication and Secrets
+        </div>
+
+        <div class="usecase-subtitle">
+          Separate Kubernetes identity from MongoDB identity
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="usecase-body">
+
+      <div class="grid2">
+
+        <div>
+
+          <h3>
+            Kubernetes side
+          </h3>
+
+          <div class="command">
+
+kubectl get secret -n &lt;mongo-namespace&gt;
+
+kubectl describe secret \
+  &lt;mongo-secret&gt; \
+  -n &lt;mongo-namespace&gt;
+
+          </div>
+
+        </div>
+
+
+        <div>
+
+          <h3>
+            MongoDB side
+          </h3>
+
+          <div class="command">
+
+mongosh \
+  "mongodb://&lt;host&gt;:27017/&lt;db&gt;" \
+  --username &lt;user&gt; \
+  --authenticationDatabase admin
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="callout danger">
+
+        Do not casually paste credentials into shell history,
+        screenshots, tickets or chat.
+
+        Kubernetes Secrets are specifically intended for sensitive data,
+        but the default storage model in Kubernetes does not make them
+        automatically equivalent to a fully protected external secret system.
+        :contentReference[oaicite:7]{index=7}
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- TLS -->
+
+  <div class="usecase">
+
+    <div class="usecase-head">
+
+      <div>
+
+        <div class="usecase-title">
+          Step 7 — TLS / Replica Set
+        </div>
+
+        <div class="usecase-subtitle">
+          Where architect-level database access differs from a toy Pod
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="usecase-body">
+
+      <p>
+        For a TLS-enabled MongoDB deployment:
+      </p>
+
+
+      <div class="command">
+
+mongosh \
+  "mongodb://mongo-0.example:27017,\
+mongo-1.example:27017,\
+mongo-2.example:27017/?replicaSet=rs0" \
+  --tls \
+  --tlsCAFile /path/to/ca.pem
+
+      </div>
+
+
+      <div class="callout">
+
+        MongoDB documents replica-set connection strings using multiple
+        members and TLS configuration with a CA file. :contentReference[oaicite:8]{index=8}
+
+      </div>
+
+
+      <div class="callout warn">
+
+        <b>
+          Key architectural distinction:
+        </b>
+
+        port-forwarding a single Pod is not automatically equivalent to
+        connecting to the MongoDB replica set as a whole.
+
+        For production connectivity, understand:
+
+        <b>
+          topology → replica-set discovery → TLS → authentication →
+          read preference → failover
+        </b>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- K9S -->
+
+  <div class="usecase">
+
+    <div class="usecase-head">
+
+      <div>
+
+        <div class="usecase-title">
+          MongoDB workflow in K9s
+        </div>
+
+        <div class="usecase-subtitle">
+          Visual investigation without losing the architecture
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="usecase-body">
+
+      <div class="command">
+
+:ctx
+
+:ns
+
+:sts
+
+:po
+
+:svc
+
+:pvc
+
+      </div>
+
+
+      <p>
+        From the Pod view:
+      </p>
+
+
+      <div class="command">
+
+l       # Logs
+
+d       # Describe
+
+s       # Shell
+
+Shift-F # Port-forward
+
+      </div>
+
+
+      <p>
+        K9s also exposes a port-forward view and can create a port-forward
+        from the Pod view. :contentReference[oaicite:9]{index=9}
+      </p>
+
+
+      <div class="callout">
+
+        For architect-level troubleshooting,
+        use K9s for navigation/observation and kubectl for precise,
+        reproducible commands you can put into runbooks and automation.
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ============================================================
+     09 SECURITY
+============================================================ -->
+
+<section class="section" id="security">
+
+  <div class="section-header">
+
+    <div class="section-number">
+      09 · Security
+    </div>
+
+    <h2>
+      Identity has multiple layers
+    </h2>
+
+    <p class="section-intro">
+      Kubernetes identity and application/database identity are different.
+    </p>
+
+  </div>
+
+
+  <div class="grid">
+
+
+    <div class="card blue">
+
+      <h3>
+        Human → Kubernetes
+      </h3>
+
+      <p>
+        kubeconfig / identity provider /
+        Kubernetes RBAC.
+      </p>
+
+    </div>
+
+
+    <div class="card purple">
+
+      <h3>
+        Pod → Kubernetes API
+      </h3>
+
+      <p>
+        ServiceAccount + RBAC determine what
+        the workload can request from the API.
+      </p>
+
+    </div>
+
+
+    <div class="card orange">
+
+      <h3>
+        Application → MongoDB
+      </h3>
+
+      <p>
+        MongoDB username, authentication database,
+        authorization and TLS.
+      </p>
+
+    </div>
+
+
+    <div class="card green">
+
+      <h3>
+        Network
+      </h3>
+
+      <p>
+        NetworkPolicy and the cluster networking implementation
+        control allowed traffic paths.
+      </p>
+
+    </div>
+
+
+    <div class="card cyan">
+
+      <h3>
+        Secrets
+      </h3>
+
+      <p>
+        Kubernetes Secret or external secret-management integration.
+      </p>
+
+    </div>
+
+
+    <div class="card red">
+
+      <h3>
+        Admission
+      </h3>
+
+      <p>
+        Policy can validate or mutate workloads before they are accepted.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="callout">
+
+    Think in a chain:
+
+    <b>
+      Who am I?
+      →
+      What Kubernetes API can I access?
+      →
+      What Pod can I access?
+      →
+      What network path exists?
+      →
+      What database identity do I have?
+    </b>
+
+  </div>
+
+</section>
+
+
+
+<!-- ============================================================
+     10 DEBUGGING
+============================================================ -->
+
+<section class="section" id="debugging">
+
+  <div class="section-header">
+
+    <div class="section-number">
+      10 · Production debugging
+    </div>
+
+    <h2>
+      Follow the dependency graph
+    </h2>
+
+    <p class="section-intro">
+      Don't run 30 commands. Ask one question at every layer.
+    </p>
+
+  </div>
+
+
+  <div class="tabs">
+
+    <button class="tab active" data-tab="incident-api">
+      API failing
+    </button>
+
+    <button class="tab" data-tab="incident-pod">
+      Pod restarting
+    </button>
+
+    <button class="tab" data-tab="incident-network">
+      Service unreachable
+    </button>
+
+    <button class="tab" data-tab="incident-mongo">
+      MongoDB failure
+    </button>
+
+  </div>
+
+
+
+  <!-- API -->
+
+  <div class="tab-panel active" id="incident-api">
+
+    <div class="grid">
+
+      <div class="card">
+
+        <h3>
+          1 · Location
+        </h3>
+
+        <div class="command">
+
+kubectl config current-context
+
+kubectl get ns
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          2 · Workload
+        </h3>
+
+        <div class="command">
+
+kubectl get deploy
+
+kubectl get pods
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          3 · Application
+        </h3>
+
+        <div class="command">
+
+kubectl logs &lt;pod&gt;
+
+kubectl logs &lt;pod&gt; --previous
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          4 · Kubernetes
+        </h3>
+
+        <div class="command">
+
+kubectl describe pod &lt;pod&gt;
+
+kubectl get events
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          5 · Network
+        </h3>
+
+        <div class="command">
+
+kubectl get svc
+
+kubectl get endpointslice
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          6 · Dependency
+        </h3>
+
+        <div class="command">
+
+kubectl exec -it &lt;pod&gt; -- \
+  curl http://&lt;service&gt;:&lt;port&gt;
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- RESTART -->
+
+  <div class="tab-panel" id="incident-pod">
+
+    <div class="callout">
+
+      Start with:
+
+      <b>
+        STATUS → RESTARTS → current logs → previous logs → describe → events
+      </b>
+
+    </div>
+
+
+    <div class="command">
+
+kubectl get pod &lt;pod&gt; -o wide
+
+kubectl logs &lt;pod&gt;
+
+kubectl logs &lt;pod&gt; --previous
+
+kubectl describe pod &lt;pod&gt;
+
+kubectl get events --sort-by=.lastTimestamp
+
+    </div>
+
+  </div>
+
+
+
+  <!-- NETWORK -->
+
+  <div class="tab-panel" id="incident-network">
+
+    <div class="grid2">
+
+      <div class="card">
+
+        <h3>
+          Service path
+        </h3>
+
+        <div class="command">
+
+kubectl get svc &lt;service&gt;
+
+kubectl describe svc &lt;service&gt;
+
+kubectl get endpointslice \
+  -l kubernetes.io/service-name=&lt;service&gt;
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          Pod path
+        </h3>
+
+        <div class="command">
+
+kubectl get pods --show-labels
+
+kubectl exec -it &lt;client-pod&gt; -- \
+  getent hosts &lt;service&gt;
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="callout warn">
+
+      Separate DNS failure from network-policy failure
+      from application-port failure.
+
+    </div>
+
+  </div>
+
+
+
+  <!-- MONGO -->
+
+  <div class="tab-panel" id="incident-mongo">
+
+    <div class="command">
+
+kubectl get sts,svc,pods,pvc -n &lt;mongo-ns&gt;
+
+kubectl get pods -n &lt;mongo-ns&gt; -o wide
+
+kubectl get pvc -n &lt;mongo-ns&gt;
+
+kubectl get endpointslice -n &lt;mongo-ns&gt;
+
+kubectl logs &lt;mongo-pod&gt; -n &lt;mongo-ns&gt;
+
+kubectl describe pod &lt;mongo-pod&gt; -n &lt;mongo-ns&gt;
+
+    </div>
+
+
+    <div class="callout">
+
+      Then separate:
+
+      <b>
+        Kubernetes problem
+      </b>
+
+      from:
+
+      <b>
+        MongoDB process problem
+      </b>
+
+      from:
+
+      <b>
+        Storage problem
+      </b>
+
+      from:
+
+      <b>
+        Authentication/TLS problem
+      </b>
+
+      from:
+
+      <b>
+        Replica-set/topology problem
+      </b>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ============================================================
+     11 PRODUCTION
+============================================================ -->
+
+<section class="section" id="production">
+
+  <div class="section-header">
+
+    <div class="section-number">
+      11 · Architect checklist
+    </div>
+
+    <h2>
+      What should you think about beyond kubectl?
+    </h2>
+
+    <p class="section-intro">
+      Architect-level Kubernetes work is about system properties,
+      not just commands.
+    </p>
+
+  </div>
+
+
+  <div class="grid">
+
+
+    <div class="card blue">
+
+      <h3>
+        Availability
+      </h3>
+
+      <p>
+        Replicas, zones, topology spread,
+        PodDisruptionBudget, failover.
+      </p>
+
+    </div>
+
+
+    <div class="card green">
+
+      <h3>
+        Capacity
+      </h3>
+
+      <p>
+        Requests, limits, autoscaling,
+        node pools and headroom.
+      </p>
+
+    </div>
+
+
+    <div class="card purple">
+
+      <h3>
+        Scheduling
+      </h3>
+
+      <p>
+        Taints, tolerations, affinity,
+        anti-affinity and topology.
+      </p>
+
+    </div>
+
+
+    <div class="card cyan">
+
+      <h3>
+        Networking
+      </h3>
+
+      <p>
+        Service discovery, DNS,
+        ingress/gateway, policies and egress.
+      </p>
+
+    </div>
+
+
+    <div class="card orange">
+
+      <h3>
+        Storage
+      </h3>
+
+      <p>
+        StorageClass, PVC/PV,
+        performance, backup and restore.
+      </p>
+
+    </div>
+
+
+    <div class="card red">
+
+      <h3>
+        Security
+      </h3>
+
+      <p>
+        RBAC, ServiceAccounts,
+        Secrets, admission and network policies.
+      </p>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Observability
+      </h3>
+
+      <p>
+        Logs, metrics, traces,
+        events and alerting.
+      </p>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Delivery
+      </h3>
+
+      <p>
+        GitOps, rollout strategy,
+        canary, rollback and policy checks.
+      </p>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Failure domains
+      </h3>
+
+      <p>
+        Node, zone, region,
+        storage failure and application failure.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <details>
+
+    <summary>
+      Scheduling example: why did Kubernetes place this Pod there?
+    </summary>
+
+    <div class="details-content">
+
+      Investigate:
+
+      <br><br>
+
+      <code>
+        nodeSelector
+      </code>
+
+      <code>
+        nodeAffinity
+      </code>
+
+      <code>
+        podAffinity
+      </code>
+
+      <code>
+        podAntiAffinity
+      </code>
+
+      <code>
+        taints/tolerations
+      </code>
+
+      <code>
+        topologySpreadConstraints
+      </code>
+
+      <br><br>
+
+      Kubernetes provides several mechanisms for influencing Pod placement,
+      including node selectors, affinity/anti-affinity and topology spread
+      constraints. :contentReference[oaicite:10]{index=10}
+
+    </div>
+
+  </details>
+
+
+  <details>
+
+    <summary>
+      Stateful application checklist
+    </summary>
+
+    <div class="details-content">
+
+      For MongoDB, Kafka, Elasticsearch-like workloads, ask:
+
+      <br><br>
+
+      <b>Identity</b>
+
+      <br>
+
+      Does every replica need a stable name?
+
+      <br><br>
+
+      <b>Storage</b>
+
+      <br>
+
+      Does each replica need durable storage?
+
+      <br><br>
+
+      <b>Topology</b>
+
+      <br>
+
+      Can replicas survive a node or zone failure?
+
+      <br><br>
+
+      <b>Backup</b>
+
+      <br>
+
+      How do we restore data?
+
+      <br><br>
+
+      <b>Recovery</b>
+
+      <br>
+
+      What happens when a Pod disappears?
+
+      <br><br>
+
+      <b>Application protocol</b>
+
+      <br>
+
+      Does the database have its own cluster/leader/replica-set
+      semantics that Kubernetes does not understand automatically?
+
+    </div>
+
+  </details>
+
+
+  <div class="callout green">
+
+    <b>
+      Key architectural principle:
+    </b>
+
+    Kubernetes can manage the lifecycle of a stateful workload,
+    but Kubernetes itself is not the database's replication protocol,
+    consistency model, backup system or application-level failover logic.
+
+  </div>
+
+</section>
+
+
+
+<!-- ============================================================
+     12 CHEATSHEET
+============================================================ -->
+
+<section class="section" id="cheatsheet">
+
+  <div class="section-header">
+
+    <div class="section-number">
+      12 · Command reference
+    </div>
+
+    <h2>
+      kubectl ↔ K9s
+    </h2>
+
+    <p class="section-intro">
+      Use this as a lookup table after understanding the mental model.
+    </p>
+
+  </div>
+
+
+  <input
+    id="commandSearch"
+    class="search"
+    placeholder="Search commands... e.g. mongo, logs, service, pvc"
+  >
+
+
+  <table id="commandTable">
+
+    <thead>
+
+      <tr>
+
+        <th>
+          Intent
+        </th>
+
+        <th>
+          kubectl
+        </th>
+
+        <th>
+          K9s
+        </th>
+
+      </tr>
+
+    </thead>
+
+
+    <tbody>
+
+
+      <tr>
+
+        <td>
+          Current context
+        </td>
+
+        <td>
+          <code>
+            kubectl config current-context
+          </code>
+        </td>
+
+        <td>
+          <code>
+            :ctx
+          </code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Change context
+        </td>
+
+        <td>
+          <code>
+            kubectl config use-context &lt;context&gt;
+          </code>
+        </td>
+
+        <td>
+          <code>
+            :ctx
+          </code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Namespace
+        </td>
+
+        <td>
+          <code>
+            kubectl get ns
+          </code>
+        </td>
+
+        <td>
+          <code>
+            :ns
+          </code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Pods
+        </td>
+
+        <td>
+          <code>
+            kubectl get pods
+          </code>
+        </td>
+
+        <td>
+          <code>
+            :po
+          </code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Deployments
+        </td>
+
+        <td>
+          <code>
+            kubectl get deploy
+          </code>
+        </td>
+
+        <td>
+          <code>
+            :deploy
+          </code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          StatefulSets
+        </td>
+
+        <td>
+          <code>
+            kubectl get sts
+          </code>
+        </td>
+
+        <td>
+          <code>
+            :sts
+          </code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Services
+        </td>
+
+        <td>
+          <code>
+            kubectl get svc
+          </code>
+        </td>
+
+        <td>
+          <code>
+            :svc
+          </code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          PVC
+        </td>
+
+        <td>
+          <code>
+            kubectl get pvc
+          </code>
+        </td>
+
+        <td>
+          <code>
+            :pvc
+          </code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Logs
+        </td>
+
+        <td>
+          <code>
+            kubectl logs &lt;pod&gt;
+          </code>
+        </td>
+
+        <td>
+          Pod → <code>l</code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Previous logs
+        </td>
+
+        <td>
+          <code>
+            kubectl logs &lt;pod&gt; --previous
+          </code>
+        </td>
+
+        <td>
+          Pod → <code>l</code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Describe
+        </td>
+
+        <td>
+          <code>
+            kubectl describe pod &lt;pod&gt;
+          </code>
+        </td>
+
+        <td>
+          Pod → <code>d</code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Shell
+        </td>
+
+        <td>
+          <code>
+            kubectl exec -it &lt;pod&gt; -- /bin/sh
+          </code>
+        </td>
+
+        <td>
+          Pod → <code>s</code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Events
+        </td>
+
+        <td>
+          <code>
+            kubectl get events
+          </code>
+        </td>
+
+        <td>
+          <code>
+            :events
+          </code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Port forward
+        </td>
+
+        <td>
+          <code>
+            kubectl port-forward svc/&lt;svc&gt; 27017:27017
+          </code>
+        </td>
+
+        <td>
+          Pod → <code>Shift-F</code>
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          MongoDB client
+        </td>
+
+        <td>
+          <code>
+            mongosh ...
+          </code>
+        </td>
+
+        <td>
+          Use K9s to reach the Pod/forward,
+          then run mongosh.
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Resource YAML
+        </td>
+
+        <td>
+          <code>
+            kubectl get pod &lt;pod&gt; -o yaml
+          </code>
+        </td>
+
+        <td>
+          Select resource → view
+        </td>
+
+      </tr>
+
+
+      <tr>
+
+        <td>
+          Rollout
+        </td>
+
+        <td>
+          <code>
+            kubectl rollout status deployment/&lt;name&gt;
+          </code>
+        </td>
+
+        <td>
+          Deployment view
+        </td>
+
+      </tr>
+
+
+    </tbody>
+
+  </table>
+
+
+  <div class="callout">
+
+    K9s supports context/namespace navigation,
+    resource aliases, logs, shell access and port-forward workflows.
+    The exact available bindings can vary by K9s version/configuration,
+    so <code>?</code> inside K9s is the definitive local reference.
+    :contentReference[oaicite:11]{index=11}
+
+  </div>
+
+</section>
+
+
+
+<!-- ============================================================
+     FINAL MENTAL MODEL
+============================================================ -->
+
+<section class="section">
+
+  <div class="section-header">
+
+    <div class="section-number">
+      Final mental model
+    </div>
+
+    <h2>
+      When something is broken, walk the layers
+    </h2>
+
+  </div>
+
+
+  <div class="arch">
+
+    <div class="layer">
+
+      <div class="layer-title">
+        1 · LOCATION
+      </div>
+
+      <div class="nodes">
+
+        <div class="node">
+          <b>Context</b>
+          <span>Correct cluster?</span>
+        </div>
+
+        <div class="node">
+          <b>Namespace</b>
+          <span>Correct boundary?</span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="layer">
+
+      <div class="layer-title">
+        2 · WORKLOAD
+      </div>
+
+      <div class="nodes">
+
+        <div class="node">
+          <b>Deployment</b>
+          <span>Desired replicas</span>
+        </div>
+
+        <div class="node">
+          <b>StatefulSet</b>
+          <span>Stateful identity</span>
+        </div>
+
+        <div class="node">
+          <b>Pod</b>
+          <span>Actual runtime</span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="layer">
+
+      <div class="layer-title">
+        3 · RUNTIME
+      </div>
+
+      <div class="nodes">
+
+        <div class="node">
+          <b>Status</b>
+          <span>Running?</span>
+        </div>
+
+        <div class="node">
+          <b>Ready</b>
+          <span>Accepting traffic?</span>
+        </div>
+
+        <div class="node">
+          <b>Logs</b>
+          <span>Application signal</span>
+        </div>
+
+        <div class="node">
+          <b>Events</b>
+          <span>Kubernetes signal</span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="layer">
+
+      <div class="layer-title">
+        4 · NETWORK
+      </div>
+
+      <div class="nodes">
+
+        <div class="node">
+          <b>Service</b>
+          <span>Stable endpoint</span>
+        </div>
+
+        <div class="node">
+          <b>EndpointSlice</b>
+          <span>Actual backends</span>
+        </div>
+
+        <div class="node">
+          <b>DNS</b>
+          <span>Name resolution</span>
+        </div>
+
+        <div class="node">
+          <b>NetworkPolicy</b>
+          <span>Allowed traffic?</span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="layer">
+
+      <div class="layer-title">
+        5 · DATA
+      </div>
+
+      <div class="nodes">
+
+        <div class="node">
+          <b>PVC</b>
+          <span>Requested storage</span>
+        </div>
+
+        <div class="node">
+          <b>PV</b>
+          <span>Bound storage</span>
+        </div>
+
+        <div class="node">
+          <b>Database</b>
+          <span>Application state</span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="layer">
+
+      <div class="layer-title">
+        6 · SECURITY
+      </div>
+
+      <div class="nodes">
+
+        <div class="node">
+          <b>RBAC</b>
+          <span>Who can do what?</span>
+        </div>
+
+        <div class="node">
+          <b>ServiceAccount</b>
+          <span>Workload identity</span>
+        </div>
+
+        <div class="node">
+          <b>Secret</b>
+          <span>Credentials</span>
+        </div>
+
+        <div class="node">
+          <b>TLS</b>
+          <span>Transport security</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="callout green">
+
+    <b>
+      The architect's debugging loop:
+    </b>
+
+    <br><br>
+
+    WHERE am I?
+
+    →
+
+    WHAT workload is responsible?
+
+    →
+
+    IS the Pod actually healthy?
+
+    →
+
+    CAN traffic reach it?
+
+    →
+
+    CAN it reach its dependencies?
+
+    →
+
+    IS storage healthy?
+
+    →
+
+    IS authentication/TLS correct?
+
+    →
+
+    WHAT does the application/database itself report?
+
+  </div>
+
+</section>
+
+
+
+<footer style="
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  padding:5px 0 30px;
+">
+
+  Kubernetes Architect Guide
+  ·
+  kubectl
+  ·
+  K9s
+  ·
+  Production Mental Models
+
+</footer>
+
 
 </main>
 </div>
@@ -2385,35 +4143,47 @@ kubectl get svc
 
 <script>
 
-/* ---------------------------------
-   TAB SWITCHING
----------------------------------- */
+/* ============================================================
+   TABS
+============================================================ */
 
 document
-  .querySelectorAll("[data-tab]")
+  .querySelectorAll(".tab")
   .forEach(button => {
 
     button.addEventListener("click", () => {
 
-      document
-        .querySelectorAll("[data-tab]")
-        .forEach(btn =>
-          btn.classList.remove("active")
-        );
+      const group =
+        button.parentElement;
 
-      document
-        .querySelectorAll(".panel")
-        .forEach(panel =>
-          panel.classList.remove("active")
+      group
+        .querySelectorAll(".tab")
+        .forEach(item =>
+          item.classList.remove("active")
         );
 
       button.classList.add("active");
 
-      const id = button.dataset.tab;
+      const target =
+        button.dataset.tab;
 
       document
-        .getElementById(id)
-        .classList.add("active");
+        .querySelectorAll(".tab-panel")
+        .forEach(panel => {
+
+          if(panel.id === target){
+
+            panel.classList.add("active");
+
+          }
+
+          else{
+
+            panel.classList.remove("active");
+
+          }
+
+        });
 
     });
 
@@ -2421,50 +4191,53 @@ document
 
 
 
-/* ---------------------------------
-   COMMAND TABLE SEARCH
----------------------------------- */
+/* ============================================================
+   COMMAND SEARCH
+============================================================ */
 
-const filter =
-  document.getElementById("filter");
+const search =
+  document.getElementById("commandSearch");
 
-filter.addEventListener("input", () => {
+const rows =
+  document.querySelectorAll(
+    "#commandTable tbody tr"
+  );
+
+search.addEventListener("input", () => {
 
   const query =
-    filter.value.toLowerCase();
+    search.value
+      .toLowerCase()
+      .trim();
 
-  document
-    .querySelectorAll(
-      "#cmdtable tr:not(:first-child)"
-    )
-    .forEach(row => {
+  rows.forEach(row => {
 
-      const text =
-        row.innerText.toLowerCase();
+    const text =
+      row.innerText.toLowerCase();
 
-      row.style.display =
-        text.includes(query)
-          ? ""
-          : "none";
+    row.style.display =
+      text.includes(query)
+        ? ""
+        : "none";
 
-    });
+  });
 
 });
 
 
 
-/* ---------------------------------
-   SIDEBAR ACTIVE SECTION
----------------------------------- */
+/* ============================================================
+   ACTIVE SIDEBAR
+============================================================ */
 
 const sections =
   document.querySelectorAll(
-    "main .section"
+    ".content > .section[id]"
   );
 
-const links =
+const sidebarLinks =
   document.querySelectorAll(
-    "aside nav a"
+    ".sidebar a"
   );
 
 const observer =
@@ -2473,35 +4246,124 @@ const observer =
 
       entries.forEach(entry => {
 
-        if(entry.isIntersecting){
+        if(!entry.isIntersecting){
+          return;
+        }
 
-          links.forEach(link =>
-            link.style.fontWeight = "400"
+        sidebarLinks.forEach(link => {
+
+          link.style.fontWeight = "400";
+
+        });
+
+        const active =
+          document.querySelector(
+            `.sidebar a[href="#${entry.target.id}"]`
           );
 
-          const active =
-            document.querySelector(
-              `aside nav a[href="#${entry.target.id}"]`
-            );
+        if(active){
 
-          if(active){
-            active.style.fontWeight = "700";
-          }
+          active.style.fontWeight = "800";
 
         }
 
       });
 
     },
+
     {
-      rootMargin:"-20% 0px -70% 0px"
+      rootMargin:"-15% 0px -70% 0px"
     }
+
   );
 
 
 sections.forEach(section =>
   observer.observe(section)
 );
+
+
+
+/* ============================================================
+   COPY COMMAND BUTTONS
+============================================================ */
+
+function addCopyButtons(){
+
+  document
+    .querySelectorAll(".command")
+    .forEach(block => {
+
+      if(block.querySelector(".copy-btn")){
+        return;
+      }
+
+      const button =
+        document.createElement("button");
+
+      button.className =
+        "copy-btn";
+
+      button.textContent =
+        "Copy";
+
+      button.addEventListener(
+        "click",
+        async () => {
+
+          const clone =
+            block.cloneNode(true);
+
+          const copyButton =
+            clone.querySelector(".copy-btn");
+
+          if(copyButton){
+            copyButton.remove();
+          }
+
+          const label =
+            clone.querySelector(".command-label");
+
+          if(label){
+            label.remove();
+          }
+
+          const text =
+            clone.innerText.trim();
+
+          try{
+
+            await navigator.clipboard.writeText(text);
+
+            button.textContent =
+              "Copied";
+
+            setTimeout(
+              () =>
+                button.textContent = "Copy",
+              1200
+            );
+
+          }
+
+          catch(error){
+
+            button.textContent =
+              "Select manually";
+
+          }
+
+        }
+      );
+
+      block.appendChild(button);
+
+    });
+
+}
+
+
+addCopyButtons();
 
 </script>
 
