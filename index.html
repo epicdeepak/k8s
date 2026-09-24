@@ -1,1 +1,2509 @@
-test
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubernetes from Zero — kubectl + K9s</title>
+
+<style>
+:root{
+  --bg:#f6f7fb;
+  --panel:#fff;
+  --ink:#172033;
+  --muted:#667085;
+  --line:#e5e7eb;
+  --blue:#2563eb;
+  --blue-soft:#eff6ff;
+  --green:#15803d;
+  --green-soft:#f0fdf4;
+  --amber:#b45309;
+  --amber-soft:#fffbeb;
+  --red:#b91c1c;
+  --red-soft:#fef2f2;
+  --purple:#7c3aed;
+  --purple-soft:#f5f3ff;
+  --code:#111827;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+button,
+input{
+  font:inherit;
+}
+
+.app{
+  max-width:1450px;
+  margin:auto;
+  padding:22px;
+}
+
+/* HERO */
+
+.hero{
+  background:linear-gradient(135deg,#111827 0%,#1e3a8a 100%);
+  color:#fff;
+  border-radius:22px;
+  padding:30px;
+  margin-bottom:18px;
+}
+
+.hero h1{
+  margin:0 0 8px;
+  font-size:32px;
+  letter-spacing:-.03em;
+}
+
+.hero p{
+  margin:0;
+  color:#dbeafe;
+  max-width:900px;
+  font-size:15px;
+}
+
+.badge{
+  display:inline-block;
+  background:#ffffff18;
+  border:1px solid #ffffff30;
+  padding:5px 10px;
+  border-radius:999px;
+  font-size:12px;
+  margin-bottom:10px;
+}
+
+/* LAYOUT */
+
+.layout{
+  display:grid;
+  grid-template-columns:250px minmax(0,1fr);
+  gap:18px;
+  align-items:start;
+}
+
+aside{
+  position:sticky;
+  top:18px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px;
+}
+
+aside strong{
+  display:block;
+  margin:4px 8px 10px;
+  font-size:12px;
+  text-transform:uppercase;
+  color:var(--muted);
+  letter-spacing:.08em;
+}
+
+nav a{
+  display:block;
+  text-decoration:none;
+  color:#344054;
+  padding:8px 9px;
+  border-radius:9px;
+  margin:2px 0;
+}
+
+nav a:hover{
+  background:#f2f4f7;
+  color:var(--blue);
+}
+
+main{
+  min-width:0;
+}
+
+/* SECTIONS */
+
+.section{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:22px;
+  margin-bottom:18px;
+}
+
+.section h2{
+  margin:0 0 6px;
+  font-size:21px;
+  letter-spacing:-.02em;
+}
+
+.section h3{
+  margin:18px 0 8px;
+  font-size:15px;
+}
+
+.sub{
+  color:var(--muted);
+  margin:0 0 16px;
+}
+
+/* CARDS */
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+
+.grid2{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.card{
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:15px;
+  background:#fff;
+}
+
+.card h3{
+  margin:0 0 5px;
+}
+
+.card p{
+  margin:0;
+  color:var(--muted);
+}
+
+/* MENTAL MODEL */
+
+.model{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  background:#fafafa;
+  border:1px dashed #d0d5dd;
+  border-radius:14px;
+  padding:20px;
+}
+
+.node{
+  padding:11px 15px;
+  border-radius:11px;
+  background:#fff;
+  border:1px solid #cbd5e1;
+  text-align:center;
+  min-width:125px;
+}
+
+.node b{
+  display:block;
+}
+
+.arrow{
+  color:#98a2b3;
+  font-size:20px;
+}
+
+/* FLOW */
+
+.flow{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.step{
+  padding:13px;
+  border-radius:12px;
+  background:#f8fafc;
+  border:1px solid var(--line);
+}
+
+.step .num{
+  font-size:11px;
+  color:var(--blue);
+  font-weight:800;
+}
+
+.step b{
+  display:block;
+  margin-top:3px;
+}
+
+/* COMMANDS */
+
+.command{
+  background:var(--code);
+  color:#e5e7eb;
+  border-radius:11px;
+  padding:13px 14px;
+  font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;
+  overflow:auto;
+  white-space:pre-wrap;
+}
+
+.prompt{
+  color:#60a5fa;
+}
+
+/* COMPARE */
+
+.compare{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.col{
+  border:1px solid var(--line);
+  border-radius:13px;
+  overflow:hidden;
+}
+
+.colhead{
+  padding:11px 14px;
+  font-weight:750;
+  background:#f8fafc;
+  border-bottom:1px solid var(--line);
+}
+
+.colbody{
+  padding:13px;
+}
+
+.kubectl .colhead{
+  color:#1d4ed8;
+  background:var(--blue-soft);
+}
+
+.k9s .colhead{
+  color:#6d28d9;
+  background:var(--purple-soft);
+}
+
+/* TABLE */
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,
+td{
+  text-align:left;
+  padding:9px;
+  border-bottom:1px solid var(--line);
+  vertical-align:top;
+}
+
+th{
+  font-size:12px;
+  color:var(--muted);
+  background:#fafafa;
+}
+
+code{
+  background:#f2f4f7;
+  padding:2px 5px;
+  border-radius:5px;
+  font:12px ui-monospace,monospace;
+  color:#344054;
+}
+
+/* STATUS */
+
+.status{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+}
+
+.status .s{
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:11px;
+}
+
+.s b{
+  display:block;
+}
+
+.s small{
+  color:var(--muted);
+}
+
+.run{
+  background:var(--green-soft);
+  border-color:#bbf7d0 !important;
+}
+
+.wait{
+  background:var(--amber-soft);
+  border-color:#fde68a !important;
+}
+
+.bad{
+  background:var(--red-soft);
+  border-color:#fecaca !important;
+}
+
+/* CALLOUT */
+
+.callout{
+  border-left:4px solid var(--blue);
+  background:var(--blue-soft);
+  padding:12px 14px;
+  border-radius:0 10px 10px 0;
+  margin:12px 0;
+}
+
+.callout.warn{
+  border-left-color:var(--amber);
+  background:var(--amber-soft);
+}
+
+.callout.danger{
+  border-left-color:var(--red);
+  background:var(--red-soft);
+}
+
+/* TABS */
+
+.tabs{
+  display:flex;
+  gap:6px;
+  margin:10px 0 12px;
+  flex-wrap:wrap;
+}
+
+.tabs button{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:8px;
+  padding:7px 10px;
+  cursor:pointer;
+}
+
+.tabs button.active{
+  background:#111827;
+  color:#fff;
+  border-color:#111827;
+}
+
+.panel{
+  display:none;
+}
+
+.panel.active{
+  display:block;
+}
+
+/* SEARCH */
+
+.search{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  margin-bottom:12px;
+}
+
+/* TEXT */
+
+.mini{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.footer{
+  color:var(--muted);
+  text-align:center;
+  padding:12px 0 30px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1000px){
+
+  .layout{
+    grid-template-columns:1fr;
+  }
+
+  aside{
+    position:relative;
+    top:auto;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .flow{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .status{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media(max-width:650px){
+
+  .compare,
+  .grid2{
+    grid-template-columns:1fr;
+  }
+
+  .flow{
+    grid-template-columns:1fr;
+  }
+
+  .status{
+    grid-template-columns:1fr;
+  }
+
+  .hero h1{
+    font-size:26px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- HERO -->
+<header class="hero">
+
+  <span class="badge">
+    Kubernetes • kubectl • K9s
+  </span>
+
+  <h1>
+    Kubernetes from Zero
+  </h1>
+
+  <p>
+    A practical mental model for understanding Kubernetes,
+    debugging Pods and using both kubectl and K9s without getting overwhelmed.
+  </p>
+
+</header>
+
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside>
+
+  <strong>On this page</strong>
+
+  <nav>
+
+    <a href="#mental">
+      1. Mental model
+    </a>
+
+    <a href="#context">
+      2. Context + namespace
+    </a>
+
+    <a href="#resources">
+      3. Kubernetes resources
+    </a>
+
+    <a href="#pods">
+      4. Pods + status
+    </a>
+
+    <a href="#workflow">
+      5. Debugging flow
+    </a>
+
+    <a href="#commands">
+      6. kubectl ↔ K9s
+    </a>
+
+    <a href="#recipes">
+      7. Common use cases
+    </a>
+
+    <a href="#safety">
+      8. Production safety
+    </a>
+
+    <a href="#memory">
+      9. What to memorize
+    </a>
+
+  </nav>
+
+</aside>
+
+
+<main>
+
+
+<!-- ========================= -->
+<!-- 1. MENTAL MODEL -->
+<!-- ========================= -->
+
+<section class="section" id="mental">
+
+  <h2>
+    1. The Kubernetes mental model
+  </h2>
+
+  <p class="sub">
+    Before typing commands, answer four questions:
+    <b>Where?</b>
+    <b>Which area?</b>
+    <b>What?</b>
+    <b>Why?</b>
+  </p>
+
+
+  <div class="flow">
+
+    <div class="step">
+
+      <span class="num">
+        WHERE?
+      </span>
+
+      <b>
+        Context
+      </b>
+
+      <span class="mini">
+        Which cluster and credentials?
+      </span>
+
+    </div>
+
+
+    <div class="step">
+
+      <span class="num">
+        WHICH AREA?
+      </span>
+
+      <b>
+        Namespace
+      </b>
+
+      <span class="mini">
+        Which logical workspace?
+      </span>
+
+    </div>
+
+
+    <div class="step">
+
+      <span class="num">
+        WHAT?
+      </span>
+
+      <b>
+        Resource
+      </b>
+
+      <span class="mini">
+        Deployment, Pod, Service...
+      </span>
+
+    </div>
+
+
+    <div class="step">
+
+      <span class="num">
+        WHY?
+      </span>
+
+      <b>
+        Observe
+      </b>
+
+      <span class="mini">
+        Status → logs → describe → events
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div class="model" style="margin-top:14px">
+
+    <div class="node">
+
+      <b>
+        Context
+      </b>
+
+      <small>
+        cluster + user + namespace
+      </small>
+
+    </div>
+
+
+    <div class="arrow">
+      →
+    </div>
+
+
+    <div class="node">
+
+      <b>
+        Namespace
+      </b>
+
+      <small>
+        logical boundary
+      </small>
+
+    </div>
+
+
+    <div class="arrow">
+      →
+    </div>
+
+
+    <div class="node">
+
+      <b>
+        Deployment
+      </b>
+
+      <small>
+        desired application state
+      </small>
+
+    </div>
+
+
+    <div class="arrow">
+      →
+    </div>
+
+
+    <div class="node">
+
+      <b>
+        ReplicaSet
+      </b>
+
+      <small>
+        maintains Pod count
+      </small>
+
+    </div>
+
+
+    <div class="arrow">
+      →
+    </div>
+
+
+    <div class="node">
+
+      <b>
+        Pod
+      </b>
+
+      <small>
+        runs containers
+      </small>
+
+    </div>
+
+  </div>
+
+
+  <div class="callout">
+
+    <b>
+      Core idea:
+    </b>
+
+    Kubernetes is a system where you declare the desired state
+    and controllers continuously work toward making the actual
+    cluster match that desired state.
+
+  </div>
+
+</section>
+
+
+
+<!-- ========================= -->
+<!-- 2 CONTEXT -->
+<!-- ========================= -->
+
+<section class="section" id="context">
+
+  <h2>
+    2. Context & Namespace
+  </h2>
+
+  <p class="sub">
+
+    Think:
+
+    <b>
+      Context = Where am I?
+    </b>
+
+    <br>
+
+    <b>
+      Namespace = Which area am I looking at?
+    </b>
+
+  </p>
+
+
+  <div class="grid2">
+
+
+    <div class="card">
+
+      <h3>
+        Context
+      </h3>
+
+      <p>
+
+        A context generally tells kubectl which
+        cluster and credentials to use and which namespace
+        should be the default.
+
+      </p>
+
+
+      <div class="command" style="margin-top:10px">
+
+kubectl config current-context
+
+kubectl config get-contexts
+
+kubectl config use-context &lt;context&gt;
+
+      </div>
+
+    </div>
+
+
+
+    <div class="card">
+
+      <h3>
+        Namespace
+      </h3>
+
+      <p>
+
+        A namespace is a logical partition inside
+        a Kubernetes cluster.
+
+      </p>
+
+
+      <div class="command" style="margin-top:10px">
+
+kubectl get ns
+
+kubectl get pods -n payments
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="compare" style="margin-top:12px">
+
+
+    <div class="col kubectl">
+
+      <div class="colhead">
+        kubectl
+      </div>
+
+      <div class="colbody">
+
+        <div class="command">
+
+kubectl config current-context
+
+kubectl config use-context staging
+
+kubectl get pods -n payments
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="col k9s">
+
+      <div class="colhead">
+        K9s
+      </div>
+
+      <div class="colbody">
+
+        <div class="command">
+
+k9s
+
+:ctx
+
+:ns
+
+:po
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="callout warn">
+
+    <b>
+      Safety habit:
+    </b>
+
+    Before editing or deleting anything,
+    verify your context and namespace.
+
+  </div>
+
+</section>
+
+
+
+<!-- ========================= -->
+<!-- RESOURCES -->
+<!-- ========================= -->
+
+<section class="section" id="resources">
+
+  <h2>
+    3. What actually runs?
+  </h2>
+
+  <p class="sub">
+
+    Kubernetes has many resource types.
+    Start with these.
+
+  </p>
+
+
+  <div class="grid">
+
+
+    <div class="card">
+
+      <h3>
+        Deployment
+      </h3>
+
+      <p>
+
+        Defines how an application should run,
+        including its Pod template and replica count.
+
+      </p>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        ReplicaSet
+      </h3>
+
+      <p>
+
+        Ensures the desired number of matching
+        Pods exists.
+
+      </p>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Pod
+      </h3>
+
+      <p>
+
+        Smallest deployable unit.
+        Contains one or more containers.
+
+      </p>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Service
+      </h3>
+
+      <p>
+
+        Gives a stable network endpoint
+        for a group of Pods.
+
+      </p>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Ingress
+      </h3>
+
+      <p>
+
+        Routes external HTTP/HTTPS traffic
+        toward Services.
+
+      </p>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Job / CronJob
+      </h3>
+
+      <p>
+
+        Runs work to completion,
+        either once or on a schedule.
+
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="model" style="margin-top:14px">
+
+
+    <div class="node">
+
+      <b>
+        Ingress
+      </b>
+
+      <small>
+        external HTTP
+      </small>
+
+    </div>
+
+
+    <div class="arrow">
+      →
+    </div>
+
+
+    <div class="node">
+
+      <b>
+        Service
+      </b>
+
+      <small>
+        stable endpoint
+      </small>
+
+    </div>
+
+
+    <div class="arrow">
+      →
+    </div>
+
+
+    <div class="node">
+
+      <b>
+        Pods
+      </b>
+
+      <small>
+        application containers
+      </small>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ========================= -->
+<!-- PODS -->
+<!-- ========================= -->
+
+<section class="section" id="pods">
+
+  <h2>
+    4. Pods: the thing you debug most
+  </h2>
+
+  <p class="sub">
+
+    Pod status is a clue, not the complete diagnosis.
+
+  </p>
+
+
+  <div class="status">
+
+
+    <div class="s run">
+
+      <b>
+        Running
+      </b>
+
+      <small>
+        Pod is running.
+        Containers may still fail readiness.
+      </small>
+
+    </div>
+
+
+    <div class="s">
+
+      <b>
+        Pending
+      </b>
+
+      <small>
+        Pod has not fully started.
+        Check scheduling/resources.
+      </small>
+
+    </div>
+
+
+    <div class="s wait">
+
+      <b>
+        ContainerCreating
+      </b>
+
+      <small>
+        Container setup is in progress.
+      </small>
+
+    </div>
+
+
+    <div class="s wait">
+
+      <b>
+        CrashLoopBackOff
+      </b>
+
+      <small>
+        Container repeatedly exits.
+      </small>
+
+    </div>
+
+
+    <div class="s bad">
+
+      <b>
+        ImagePullBackOff
+      </b>
+
+      <small>
+        Kubernetes cannot pull the image.
+      </small>
+
+    </div>
+
+  </div>
+
+
+
+  <h3>
+    Read a Pod like an operator
+  </h3>
+
+
+  <table>
+
+    <tr>
+
+      <th>
+        Signal
+      </th>
+
+      <th>
+        Ask
+      </th>
+
+      <th>
+        Next action
+      </th>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        READY
+      </td>
+
+      <td>
+        Are the expected containers ready?
+      </td>
+
+      <td>
+        describe + logs
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        STATUS
+      </td>
+
+      <td>
+        What lifecycle state is it in?
+      </td>
+
+      <td>
+        Use status to choose investigation
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        RESTARTS
+      </td>
+
+      <td>
+        Is the container repeatedly dying?
+      </td>
+
+      <td>
+        logs --previous + describe
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        AGE
+      </td>
+
+      <td>
+        Did this Pod appear recently?
+      </td>
+
+      <td>
+        Compare with deployment timing
+      </td>
+
+    </tr>
+
+  </table>
+
+</section>
+
+
+
+<!-- ========================= -->
+<!-- DEBUGGING -->
+<!-- ========================= -->
+
+<section class="section" id="workflow">
+
+  <h2>
+    5. Production debugging flow
+  </h2>
+
+  <p class="sub">
+
+    Example:
+
+    <b>
+      "The API is failing."
+    </b>
+
+    Don't jump randomly between resources.
+
+  </p>
+
+
+  <div class="flow">
+
+
+    <div class="step">
+
+      <span class="num">
+        01
+      </span>
+
+      <b>
+        Context
+      </b>
+
+      <span class="mini">
+        Right cluster?
+      </span>
+
+    </div>
+
+
+    <div class="step">
+
+      <span class="num">
+        02
+      </span>
+
+      <b>
+        Namespace
+      </b>
+
+      <span class="mini">
+        Right area?
+      </span>
+
+    </div>
+
+
+    <div class="step">
+
+      <span class="num">
+        03
+      </span>
+
+      <b>
+        Deployment → Pods
+      </b>
+
+      <span class="mini">
+        Is workload healthy?
+      </span>
+
+    </div>
+
+
+    <div class="step">
+
+      <span class="num">
+        04
+      </span>
+
+      <b>
+        Status
+      </b>
+
+      <span class="mini">
+        READY / STATUS / RESTARTS
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div class="flow" style="margin-top:10px">
+
+
+    <div class="step">
+
+      <span class="num">
+        05
+      </span>
+
+      <b>
+        Logs
+      </b>
+
+      <span class="mini">
+        What is the app saying?
+      </span>
+
+    </div>
+
+
+    <div class="step">
+
+      <span class="num">
+        06
+      </span>
+
+      <b>
+        Describe
+      </b>
+
+      <span class="mini">
+        What does Kubernetes know?
+      </span>
+
+    </div>
+
+
+    <div class="step">
+
+      <span class="num">
+        07
+      </span>
+
+      <b>
+        Events
+      </b>
+
+      <span class="mini">
+        What happened recently?
+      </span>
+
+    </div>
+
+
+    <div class="step">
+
+      <span class="num">
+        08
+      </span>
+
+      <b>
+        Service
+      </b>
+
+      <span class="mini">
+        Can traffic reach Pods?
+      </span>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="compare" style="margin-top:14px">
+
+
+    <div class="col kubectl">
+
+      <div class="colhead">
+        kubectl path
+      </div>
+
+      <div class="colbody">
+
+        <div class="command">
+
+kubectl config current-context
+
+kubectl get pods -n &lt;namespace&gt;
+
+kubectl logs &lt;pod&gt; -n &lt;namespace&gt;
+
+kubectl logs &lt;pod&gt; --previous -n &lt;namespace&gt;
+
+kubectl describe pod &lt;pod&gt; -n &lt;namespace&gt;
+
+kubectl get events -n &lt;namespace&gt;
+
+kubectl get svc -n &lt;namespace&gt;
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="col k9s">
+
+      <div class="colhead">
+        K9s path
+      </div>
+
+      <div class="colbody">
+
+        <div class="command">
+
+:ctx
+
+:ns
+
+:deploy
+
+:po
+
+l       # logs
+
+f       # follow logs
+
+d       # describe
+
+:events
+
+:svc
+
+s       # shell
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ========================= -->
+<!-- COMMAND TABLE -->
+<!-- ========================= -->
+
+<section class="section" id="commands">
+
+  <h2>
+    6. Same task, two interfaces
+  </h2>
+
+  <p class="sub">
+
+    kubectl is the command-line client.
+    K9s is an interactive terminal UI for Kubernetes.
+
+  </p>
+
+
+  <input
+    class="search"
+    id="filter"
+    placeholder="Filter this table… e.g. logs, service, pod"
+  >
+
+
+  <table id="cmdtable">
+
+    <tr>
+
+      <th>
+        Use case
+      </th>
+
+      <th>
+        kubectl
+      </th>
+
+      <th>
+        K9s
+      </th>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        See current context
+      </td>
+
+      <td>
+        <code>
+          kubectl config current-context
+        </code>
+      </td>
+
+      <td>
+        <code>
+          :ctx
+        </code>
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        List namespaces
+      </td>
+
+      <td>
+        <code>
+          kubectl get ns
+        </code>
+      </td>
+
+      <td>
+        <code>
+          :ns
+        </code>
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        List Pods
+      </td>
+
+      <td>
+        <code>
+          kubectl get pods
+        </code>
+      </td>
+
+      <td>
+        <code>
+          :po
+        </code>
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        Deployments
+      </td>
+
+      <td>
+        <code>
+          kubectl get deploy
+        </code>
+      </td>
+
+      <td>
+        <code>
+          :deploy
+        </code>
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        Services
+      </td>
+
+      <td>
+        <code>
+          kubectl get svc
+        </code>
+      </td>
+
+      <td>
+        <code>
+          :svc
+        </code>
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        Inspect resource
+      </td>
+
+      <td>
+        <code>
+          kubectl describe pod &lt;pod&gt;
+        </code>
+      </td>
+
+      <td>
+        Select → <code>d</code>
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        View logs
+      </td>
+
+      <td>
+        <code>
+          kubectl logs &lt;pod&gt;
+        </code>
+      </td>
+
+      <td>
+        Select → <code>l</code>
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        Follow logs
+      </td>
+
+      <td>
+        <code>
+          kubectl logs -f &lt;pod&gt;
+        </code>
+      </td>
+
+      <td>
+        Select → <code>f</code>
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        Shell into Pod
+      </td>
+
+      <td>
+        <code>
+          kubectl exec -it &lt;pod&gt; -- /bin/sh
+        </code>
+      </td>
+
+      <td>
+        Select → <code>s</code>
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        Events
+      </td>
+
+      <td>
+        <code>
+          kubectl get events
+        </code>
+      </td>
+
+      <td>
+        <code>
+          :events
+        </code>
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        Delete resource
+      </td>
+
+      <td>
+        <code>
+          kubectl delete …
+        </code>
+      </td>
+
+      <td>
+        Select → <code>Ctrl+d</code>
+      </td>
+
+    </tr>
+
+  </table>
+
+
+  <p class="mini" style="margin-top:10px">
+
+    K9s keybindings can vary by version/configuration.
+    Press <code>?</code> inside K9s to see the active bindings.
+
+  </p>
+
+</section>
+
+
+
+<!-- ========================= -->
+<!-- RECIPES -->
+<!-- ========================= -->
+
+<section class="section" id="recipes">
+
+  <h2>
+    7. Common use cases
+  </h2>
+
+
+  <div class="tabs">
+
+    <button
+      class="active"
+      data-tab="logs"
+    >
+      Why is my app failing?
+    </button>
+
+
+    <button
+      data-tab="restart"
+    >
+      Why are Pods restarting?
+    </button>
+
+
+    <button
+      data-tab="service"
+    >
+      Is the Service reaching Pods?
+    </button>
+
+
+    <button
+      data-tab="deploy"
+    >
+      Did my Deployment roll out?
+    </button>
+
+  </div>
+
+
+
+  <!-- LOGS -->
+
+  <div
+    id="logs"
+    class="panel active"
+  >
+
+    <div class="grid2">
+
+
+      <div class="card">
+
+        <h3>
+          kubectl
+        </h3>
+
+        <div class="command">
+
+kubectl get pods
+
+kubectl logs &lt;pod&gt;
+
+kubectl logs &lt;pod&gt; --previous
+
+kubectl describe pod &lt;pod&gt;
+
+kubectl get events
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          K9s
+        </h3>
+
+        <div class="command">
+
+:po
+
+select Pod → l
+
+select Pod → d
+
+:events
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="callout">
+
+      <b>
+        Investigation first.
+      </b>
+
+      Observe before changing resources.
+
+    </div>
+
+  </div>
+
+
+
+  <!-- RESTART -->
+
+  <div
+    id="restart"
+    class="panel"
+  >
+
+    <div class="grid2">
+
+
+      <div class="card">
+
+        <h3>
+          kubectl
+        </h3>
+
+        <div class="command">
+
+kubectl get pods
+
+kubectl logs &lt;pod&gt; --previous
+
+kubectl describe pod &lt;pod&gt;
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          K9s
+        </h3>
+
+        <div class="command">
+
+:po
+
+check RESTARTS
+
+l
+
+d
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <p class="sub" style="margin-top:12px">
+
+      Common investigation areas:
+
+      application exits,
+      probes,
+      configuration,
+      dependencies,
+      memory/resource limits,
+      node events.
+
+    </p>
+
+  </div>
+
+
+
+  <!-- SERVICE -->
+
+  <div
+    id="service"
+    class="panel"
+  >
+
+    <div class="grid2">
+
+
+      <div class="card">
+
+        <h3>
+          kubectl
+        </h3>
+
+        <div class="command">
+
+kubectl get svc
+
+kubectl describe svc &lt;service&gt;
+
+kubectl get pods --show-labels
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          K9s
+        </h3>
+
+        <div class="command">
+
+:svc
+
+select Service → d
+
+:po
+
+inspect labels
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <p class="sub" style="margin-top:12px">
+
+      Services route traffic to Pods using selectors.
+
+      If the selector does not match the intended Pods,
+      traffic will not reach them.
+
+    </p>
+
+  </div>
+
+
+
+  <!-- DEPLOYMENT -->
+
+  <div
+    id="deploy"
+    class="panel"
+  >
+
+    <div class="grid2">
+
+
+      <div class="card">
+
+        <h3>
+          kubectl
+        </h3>
+
+        <div class="command">
+
+kubectl get deploy
+
+kubectl rollout status deployment/&lt;name&gt;
+
+kubectl describe deployment &lt;name&gt;
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          K9s
+        </h3>
+
+        <div class="command">
+
+:deploy
+
+inspect:
+
+READY
+UP-TO-DATE
+AVAILABLE
+
+d
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <p class="sub" style="margin-top:12px">
+
+      Follow the chain:
+
+      Deployment
+
+      →
+
+      ReplicaSet
+
+      →
+
+      Pods.
+
+    </p>
+
+  </div>
+
+</section>
+
+
+
+<!-- ========================= -->
+<!-- SAFETY -->
+<!-- ========================= -->
+
+<section class="section" id="safety">
+
+  <h2>
+    8. Production safety
+  </h2>
+
+  <p class="sub">
+
+    Make “where am I?” a reflex before every change.
+
+  </p>
+
+
+  <div class="grid2">
+
+
+    <div class="card">
+
+      <h3>
+        Read-only investigation
+      </h3>
+
+      <div class="command">
+
+kubectl config current-context
+
+kubectl get pods
+
+kubectl describe pod &lt;pod&gt;
+
+kubectl logs &lt;pod&gt;
+
+kubectl get events
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Potentially destructive
+      </h3>
+
+      <div class="command">
+
+kubectl edit …
+
+kubectl delete …
+
+kubectl scale …
+
+kubectl rollout …
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="callout danger">
+
+    <b>
+      Before modifying or deleting anything:
+    </b>
+
+    verify the context,
+    verify the namespace,
+    identify the exact resource,
+    and understand the expected effect.
+
+  </div>
+
+</section>
+
+
+
+<!-- ========================= -->
+<!-- MEMORY -->
+<!-- ========================= -->
+
+<section class="section" id="memory">
+
+  <h2>
+    9. The small set worth memorizing
+  </h2>
+
+  <p class="sub">
+
+    You do not need to memorize Kubernetes.
+    Memorize the investigation path.
+
+  </p>
+
+
+  <div class="grid">
+
+
+    <div class="card">
+
+      <h3>
+        WHERE
+      </h3>
+
+      <div class="command">
+
+kubectl config current-context
+
+:ctx
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        AREA
+      </h3>
+
+      <div class="command">
+
+kubectl get ns
+
+:ns
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        WORKLOAD
+      </h3>
+
+      <div class="command">
+
+kubectl get pods
+
+:po
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        WHY
+      </h3>
+
+      <div class="command">
+
+kubectl logs &lt;pod&gt;
+
+kubectl describe pod &lt;pod&gt;
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        EVENTS
+      </h3>
+
+      <div class="command">
+
+kubectl get events
+
+:events
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        NETWORK
+      </h3>
+
+      <div class="command">
+
+kubectl get svc
+
+:svc
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="callout">
+
+    <b>
+      One-line memory:
+    </b>
+
+    <code>
+
+      Context → Namespace → Deployment → Pod → Status → Logs → Describe → Events → Service
+
+    </code>
+
+  </div>
+
+
+  <div class="callout warn">
+
+    <b>
+      Important distinction:
+    </b>
+
+    Kubernetes is the platform/system.
+
+    <b>kubectl</b>
+    is the CLI you use to interact with it.
+
+    <b>K9s</b>
+    is an interactive terminal UI that helps you navigate
+    and operate those same Kubernetes resources.
+
+  </div>
+
+</section>
+
+
+<div class="footer">
+
+  Kubernetes learning sheet
+  •
+  Start small
+  •
+  Follow the resource chain
+  •
+  Investigate before changing
+
+</div>
+
+</main>
+</div>
+</div>
+
+
+
+<script>
+
+/* ---------------------------------
+   TAB SWITCHING
+---------------------------------- */
+
+document
+  .querySelectorAll("[data-tab]")
+  .forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      document
+        .querySelectorAll("[data-tab]")
+        .forEach(btn =>
+          btn.classList.remove("active")
+        );
+
+      document
+        .querySelectorAll(".panel")
+        .forEach(panel =>
+          panel.classList.remove("active")
+        );
+
+      button.classList.add("active");
+
+      const id = button.dataset.tab;
+
+      document
+        .getElementById(id)
+        .classList.add("active");
+
+    });
+
+  });
+
+
+
+/* ---------------------------------
+   COMMAND TABLE SEARCH
+---------------------------------- */
+
+const filter =
+  document.getElementById("filter");
+
+filter.addEventListener("input", () => {
+
+  const query =
+    filter.value.toLowerCase();
+
+  document
+    .querySelectorAll(
+      "#cmdtable tr:not(:first-child)"
+    )
+    .forEach(row => {
+
+      const text =
+        row.innerText.toLowerCase();
+
+      row.style.display =
+        text.includes(query)
+          ? ""
+          : "none";
+
+    });
+
+});
+
+
+
+/* ---------------------------------
+   SIDEBAR ACTIVE SECTION
+---------------------------------- */
+
+const sections =
+  document.querySelectorAll(
+    "main .section"
+  );
+
+const links =
+  document.querySelectorAll(
+    "aside nav a"
+  );
+
+const observer =
+  new IntersectionObserver(
+    entries => {
+
+      entries.forEach(entry => {
+
+        if(entry.isIntersecting){
+
+          links.forEach(link =>
+            link.style.fontWeight = "400"
+          );
+
+          const active =
+            document.querySelector(
+              `aside nav a[href="#${entry.target.id}"]`
+            );
+
+          if(active){
+            active.style.fontWeight = "700";
+          }
+
+        }
+
+      });
+
+    },
+    {
+      rootMargin:"-20% 0px -70% 0px"
+    }
+  );
+
+
+sections.forEach(section =>
+  observer.observe(section)
+);
+
+</script>
+
+</body>
+</html>
